@@ -27,16 +27,22 @@ test('insert globals', function (t) {
     });
 });
 
-return;
 test('__filename and __dirname', function (t) {
     t.plan(2);
     
-    var b = browserify();
-    b.expose('x', __dirname + '/global/filename.js');
-    b.bundle(function (err, src) {
+    var files = [ __dirname + '/global/filename.js' ];
+    var deps = mdeps(files);
+    var ins = insert(files);
+    var pack = bpack({ raw: true });
+    
+    deps.pipe(ins).pipe(pack);
+    
+    var src = '';
+    pack.on('data', function (buf) { src += buf });
+    pack.on('end', function () {
         var c = {};
-        vm.runInNewContext(src, c);
-        var x = c.require('x');
+        vm.runInNewContext('require=' + src, c);
+        var x = c.require(files[0]);
         t.equal(x.filename, '/filename.js');
         t.equal(x.dirname, '/');
     });
