@@ -8,15 +8,20 @@ var path = require('path');
 var processModulePath = require.resolve('process/browser.js');
 
 module.exports = function (files, opts) {
+    if (!Array.isArray(files)) {
+        opts = files;
+        files = [];
+    }
     if (!opts) opts = {};
+    if (!files) files = [];
     var resolver = opts.resolve || browserResolve;
     
-    var basedir = files.length
+    var basedir = opts.basedir || (files.length
         ? commondir(files.map(function (x) {
             return path.resolve(path.dirname(x));
         }))
         : '/'
-    ;
+    );
     var resolvedProcess = false;
     
     return through(write, end);
