@@ -12,7 +12,9 @@ module.exports = function (files, opts) {
     var resolver = opts.resolve || browserResolve;
     
     var basedir = files.length
-        ? commondir(files.map(path.dirname))
+        ? commondir(files.map(function (x) {
+            return path.resolve(path.dirname(x));
+        }))
         : '/'
     ;
     var resolvedProcess = false;
