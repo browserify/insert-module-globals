@@ -17,7 +17,9 @@ module.exports = function (files, opts) {
     ;
     var resolvedProcess = false;
     
-    return through(function (row) {
+    return through(write, end);
+    
+    function write (row) {
         var tr = this;
         if (!/\bprocess\b/.test(row.source)
             && !/\bglobal\b/.test(row.source)
@@ -32,17 +34,25 @@ module.exports = function (files, opts) {
             if (!resolvedProcess) {
                 tr.pause();
                 
+                this.paused
+                this.on('resume', function () {
+                    process.nextTick(function () { tr.emit('end') });
+                });
+                
                 var d = mdeps(processModulePath, { resolve: resolver });
                 d.on('data', function (r) {
                     r.entry = false;
-                    tr.emit('data', r);
+                    tr.queue(r);
                 });
-                d.on('end', function () { tr.resume() });
+                d.on('end', function () {
+                    tr.resume();
+                    if (tr.ended) tr.emit('end');
+                });
             }
             
             resolvedProcess = true;
-            row.deps.__browser_process = processModulePath;
-            globals.process = 'require("__browser_process")';
+            row.deps.__browserify_process = processModulePath;
+            globals.process = 'require("__browserify_process")';
         }
         if (scope.globals.implicit.indexOf('global') >= 0) {
             globals.global = 'window';
@@ -62,5 +72,10 @@ module.exports = function (files, opts) {
         ;
         
         tr.queue(row);
-    });
+    }
+    
+    function end () {
+        this.ended = true;
+        if (!this.paused) this.emit('end');
+    }
 };
