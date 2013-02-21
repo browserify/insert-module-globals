@@ -48,7 +48,6 @@ module.exports = function (files, opts) {
                 });
                 d.on('end', function () {
                     tr.resume();
-                    if (tr.ended) tr.queue(null);
                 });
             }
             
@@ -78,6 +77,6 @@ module.exports = function (files, opts) {
     
     function end () {
         this.ended = true;
-        if (!this.paused) this.queue(null);
+        this.queue(null);
     }
 };
