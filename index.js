@@ -41,11 +41,6 @@ module.exports = function (files, opts) {
             if (!resolvedProcess) {
                 tr.pause();
                 
-                this.paused
-                this.on('resume', function () {
-                    process.nextTick(function () { tr.emit('end') });
-                });
-                
                 var d = mdeps(processModulePath, { resolve: resolver });
                 d.on('data', function (r) {
                     r.entry = false;
@@ -53,7 +48,7 @@ module.exports = function (files, opts) {
                 });
                 d.on('end', function () {
                     tr.resume();
-                    if (tr.ended) tr.emit('end');
+                    if (tr.ended) tr.queue(null);
                 });
             }
             
@@ -83,6 +78,6 @@ module.exports = function (files, opts) {
     
     function end () {
         this.ended = true;
-        if (!this.paused) this.emit('end');
+        if (!this.paused) this.queue(null);
     }
 };
