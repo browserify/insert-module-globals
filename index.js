@@ -67,11 +67,7 @@ module.exports = function (files, opts) {
             globals.__dirname = JSON.stringify(dir);
         }
         
-        var keys = Object.keys(globals);
-        row.source = '(function(' + keys + '){' + row.source + '\n})('
-            + keys.map(function (key) { return globals[key] }).join(',') + ')'
-        ;
-        
+        row.source = closeOver(globals, row.source);
         tr.queue(row);
     }
     
@@ -80,3 +76,10 @@ module.exports = function (files, opts) {
         this.queue(null);
     }
 };
+
+function closeOver (globals, src) {
+    var keys = Object.keys(globals);
+    return '(function(' + keys + '){' + src + '\n})('
+        + keys.map(function (key) { return globals[key] }).join(',') + ')'
+    ;
+}
