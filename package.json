@@ -3,7 +3,7 @@
     "version": "0.0.1",
     "description": "insert implicit module globals into a module-deps stream",
     "main": "index.js",
-    "script": {
+    "bin": {
         "insert-module-globals": "bin/cmd.js"
     },
     "dependencies": {
