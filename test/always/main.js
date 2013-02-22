@@ -1,6 +1,6 @@
-t.equal(Function('return typeof process')(), 'object');
-t.equal(Function('return typeof process.nextTick')(), 'function');
-t.equal(Function('return typeof global')(), 'object');
-t.equal(Function('return global.xyz')(), 555);
-t.equal(Function('return typeof __filename')(), 'string');
-t.equal(Function('return typeof __filename')(), 'string');
+t.equal(eval('typeof process'), 'object');
+t.equal(eval('typeof process.nextTick'), 'function');
+t.equal(eval('typeof global'), 'object');
+t.equal(eval('global.xyz'), 555);
+t.equal(eval('typeof __filename'), 'string');
+t.equal(eval('typeof __filename'), 'string');

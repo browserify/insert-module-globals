@@ -28,13 +28,19 @@ module.exports = function (files, opts) {
     
     function write (row) {
         var tr = this;
-        if (!/\bprocess\b/.test(row.source)
+        if (!opts.always
+            && !/\bprocess\b/.test(row.source)
             && !/\bglobal\b/.test(row.source)
             && !/\b__filename\b/.test(row.source)
             && !/\b__dirname\b/.test(row.source)
         ) return tr.queue(row);
         
-        var scope = parseScope(row.source);
+        var scope = opts.always
+            ? { globals: {
+                implicit: [ 'process', 'global', '__filename', '__dirname' ]
+            } }
+            : parseScope(row.source)
+        ;
         var globals = {};
         
         if (scope.globals.implicit.indexOf('process') >= 0) {
