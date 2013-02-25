@@ -27,6 +27,7 @@ module.exports = function (files, opts) {
     var tr = through(write, end);
     
     function write (row) {
+        if(hardPause) throw new Error('this should never happen')
         var tr = this;
         if (!opts.always
             && !/\bprocess\b/.test(row.source)
