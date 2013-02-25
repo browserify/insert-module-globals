@@ -2,6 +2,7 @@ var parseScope = require('lexical-scope');
 var browserResolve = require('browser-resolve');
 var commondir = require('commondir');
 var through = require('through');
+var duplexer = require('duplexer');
 var mdeps = require('module-deps');
 
 var path = require('path');
@@ -22,19 +23,19 @@ module.exports = function (files, opts) {
         }))
         : '/'
     );
-    var resolvedProcess = false, hardPause = false;
+    var resolvedProcess = false;
     
-    var tr = through(write, end);
+    var input = through(write, end);
+    var output = through();
+    input.pipe(output);
     
     function write (row) {
-        if(hardPause) throw new Error('this should never happen')
-        var tr = this;
         if (!opts.always
             && !/\bprocess\b/.test(row.source)
             && !/\bglobal\b/.test(row.source)
             && !/\b__filename\b/.test(row.source)
             && !/\b__dirname\b/.test(row.source)
-        ) return tr.queue(row);
+        ) return input.queue(row);
         
         var scope = opts.always
             ? { globals: {
@@ -46,17 +47,15 @@ module.exports = function (files, opts) {
         
         if (scope.globals.implicit.indexOf('process') >= 0) {
             if (!resolvedProcess) {
-                hardPause = true;
-                tr.pause();
+                input.pause();
                 
                 var d = mdeps(processModulePath, { resolve: resolver });
                 d.on('data', function (r) {
                     r.entry = false;
-                    tr.queue(r);
+                    output.queue(r);
                 });
                 d.on('end', function () {
-                    hardPause = false;
-                    tr.resume();
+                    input.resume();
                 });
             }
             
@@ -77,22 +76,15 @@ module.exports = function (files, opts) {
         }
         
         row.source = closeOver(globals, row.source);
-        tr.queue(row);
+        input.queue(row);
     }
     
     function end () {
         this.ended = true;
         this.queue(null);
     }
-
-    var resume = tr.resume;
-
-    tr.resume = function () {
-        if(hardPause) return;
-        resume.call(tr);
-    }
-
-    return tr
+    
+    return duplexer(input, output);
 };
 
 function closeOver (globals, src) {
