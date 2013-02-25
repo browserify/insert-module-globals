@@ -22,9 +22,9 @@ module.exports = function (files, opts) {
         }))
         : '/'
     );
-    var resolvedProcess = false;
+    var resolvedProcess = false, hardPause = false;
     
-    return through(write, end);
+    var tr = through(write, end);
     
     function write (row) {
         var tr = this;
@@ -45,6 +45,7 @@ module.exports = function (files, opts) {
         
         if (scope.globals.implicit.indexOf('process') >= 0) {
             if (!resolvedProcess) {
+                hardPause = true;
                 tr.pause();
                 
                 var d = mdeps(processModulePath, { resolve: resolver });
@@ -53,6 +54,7 @@ module.exports = function (files, opts) {
                     tr.queue(r);
                 });
                 d.on('end', function () {
+                    hardPause = false;
                     tr.resume();
                 });
             }
@@ -81,6 +83,15 @@ module.exports = function (files, opts) {
         this.ended = true;
         this.queue(null);
     }
+
+    var resume = tr.resume;
+
+    tr.resume = function () {
+        if(hardPause) return;
+        resume.call(tr);
+    }
+
+    return tr
 };
 
 function closeOver (globals, src) {
