@@ -7,16 +7,15 @@
         "insert-module-globals": "bin/cmd.js"
     },
     "dependencies": {
-        "browser-resolve": "~0.0.2",
         "commondir": "~0.0.1",
-        "module-deps": "~0.2.0",
         "process": "~0.5.1",
         "through": "~2.2.0",
         "JSONStream": "~0.4.3"
     },
     "devDependencies": {
         "tap": "~0.4.0",
-        "browser-pack": "~0.2.0"
+        "browser-pack": "~0.2.0",
+        "module-deps": "~0.2.0"
     },
     "scripts": {
         "test": "tap test/*.js"
