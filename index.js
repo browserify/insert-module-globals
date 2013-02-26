@@ -1,4 +1,3 @@
-var parseScope = require('lexical-scope');
 var browserResolve = require('browser-resolve');
 var commondir = require('commondir');
 var through = require('through');
@@ -29,22 +28,15 @@ module.exports = function (files, opts) {
     function write (row) {
         if(hardPause) throw new Error('this should never happen')
         var tr = this;
-        if (!opts.always
-            && !/\bprocess\b/.test(row.source)
-            && !/\bglobal\b/.test(row.source)
-            && !/\b__filename\b/.test(row.source)
-            && !/\b__dirname\b/.test(row.source)
-        ) return tr.queue(row);
-        
-        var scope = opts.always
-            ? { globals: {
-                implicit: [ 'process', 'global', '__filename', '__dirname' ]
-            } }
-            : parseScope(row.source)
-        ;
+
+        var global_re = /(\b|;)global[.].*/;
+        var process_re = /(\b|;)process[.].*/;
+        var filename_re = /__filename[^a-zA-Z_$]/;
+        var dirname_re = /__dirname[^a-zA-Z_$]/;
+
         var globals = {};
         
-        if (scope.globals.implicit.indexOf('process') >= 0) {
+        if (process_re.test(row.source)) {
             if (!resolvedProcess) {
                 hardPause = true;
                 tr.pause();
@@ -64,16 +56,20 @@ module.exports = function (files, opts) {
             row.deps.__browserify_process = processModulePath;
             globals.process = 'require("__browserify_process")';
         }
-        if (scope.globals.implicit.indexOf('global') >= 0) {
+        if (global_re.test(row.source)) {
             globals.global = 'window';
         }
-        if (scope.globals.implicit.indexOf('__filename') >= 0) {
+        if (filename_re.test(row.source)) {
             var file = '/' + path.relative(basedir, row.id);
             globals.__filename = JSON.stringify(file);
         }
-        if (scope.globals.implicit.indexOf('__dirname') >= 0) {
+        if (dirname_re.test(row.source)) {
             var dir = path.dirname('/' + path.relative(basedir, row.id));
             globals.__dirname = JSON.stringify(dir);
+        }
+
+        if (Object.keys(globals).length === 0) {
+            return tr.queue(row);
         }
         
         row.source = closeOver(globals, row.source);
