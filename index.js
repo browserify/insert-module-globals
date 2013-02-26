@@ -1,11 +1,11 @@
-var parseScope = require('lexical-scope');
-var browserResolve = require('browser-resolve');
+var fs = require('fs');
+
 var commondir = require('commondir');
 var through = require('through');
-var mdeps = require('module-deps');
 
 var path = require('path');
 var processModulePath = require.resolve('process/browser.js');
+var processModuleSrc = fs.readFileSync(processModulePath, 'utf8');
 
 module.exports = function (files, opts) {
     if (!Array.isArray(files)) {
@@ -14,7 +14,6 @@ module.exports = function (files, opts) {
     }
     if (!opts) opts = {};
     if (!files) files = [];
-    var resolver = opts.resolve || browserResolve;
     
     var basedir = opts.basedir || (files.length
         ? commondir(files.map(function (x) {
@@ -22,58 +21,43 @@ module.exports = function (files, opts) {
         }))
         : '/'
     );
-    var resolvedProcess = false, hardPause = false;
+    var resolvedProcess = false;
     
     var tr = through(write, end);
     
     function write (row) {
-        if(hardPause) throw new Error('this should never happen')
         var tr = this;
-        if (!opts.always
-            && !/\bprocess\b/.test(row.source)
-            && !/\bglobal\b/.test(row.source)
-            && !/\b__filename\b/.test(row.source)
-            && !/\b__dirname\b/.test(row.source)
-        ) return tr.queue(row);
-        
-        var scope = opts.always
-            ? { globals: {
-                implicit: [ 'process', 'global', '__filename', '__dirname' ]
-            } }
-            : parseScope(row.source)
-        ;
+
+        var global_re = /(\b|;)global[.].*/;
+        var process_re = /(\b|;)process[.].*/;
+        var filename_re = /__filename[^a-zA-Z_$]/;
+        var dirname_re = /__dirname[^a-zA-Z_$]/;
+
         var globals = {};
         
-        if (scope.globals.implicit.indexOf('process') >= 0) {
-            if (!resolvedProcess) {
-                hardPause = true;
-                tr.pause();
-                
-                var d = mdeps(processModulePath, { resolve: resolver });
-                d.on('data', function (r) {
-                    r.entry = false;
-                    tr.queue(r);
-                });
-                d.on('end', function () {
-                    hardPause = false;
-                    tr.resume();
-                });
-            }
-            
-            resolvedProcess = true;
+        if (process_re.test(row.source)) {
+            tr.queue({
+                id: processModulePath,
+                deps: {},
+                source: processModuleSrc
+            });
             row.deps.__browserify_process = processModulePath;
             globals.process = 'require("__browserify_process")';
         }
-        if (scope.globals.implicit.indexOf('global') >= 0) {
+        if (global_re.test(row.source)) {
             globals.global = 'window';
         }
-        if (scope.globals.implicit.indexOf('__filename') >= 0) {
+        if (filename_re.test(row.source)) {
             var file = '/' + path.relative(basedir, row.id);
             globals.__filename = JSON.stringify(file);
         }
-        if (scope.globals.implicit.indexOf('__dirname') >= 0) {
+        if (dirname_re.test(row.source)) {
             var dir = path.dirname('/' + path.relative(basedir, row.id));
             globals.__dirname = JSON.stringify(dir);
+        }
+
+        if (Object.keys(globals).length === 0) {
+            return tr.queue(row);
         }
         
         row.source = closeOver(globals, row.source);
@@ -83,13 +67,6 @@ module.exports = function (files, opts) {
     function end () {
         this.ended = true;
         this.queue(null);
-    }
-
-    var resume = tr.resume;
-
-    tr.resume = function () {
-        if(hardPause) return;
-        resume.call(tr);
     }
 
     return tr
