@@ -2,11 +2,12 @@ var parseScope = require('lexical-scope');
 var browserResolve = require('browser-resolve');
 var commondir = require('commondir');
 var through = require('through');
-var duplexer = require('duplexer');
 var mdeps = require('module-deps');
 
 var path = require('path');
+var fs = require('fs');
 var processModulePath = require.resolve('process/browser.js');
+var processModuleSrc = fs.readFileSync(processModulePath, 'utf8');
 
 module.exports = function (files, opts) {
     if (!Array.isArray(files)) {
@@ -25,9 +26,7 @@ module.exports = function (files, opts) {
     );
     var resolvedProcess = false;
     
-    var input = through(write, end);
-    var output = through();
-    input.pipe(output);
+    return through(write, end);
     
     function write (row) {
         if (!opts.always
@@ -35,7 +34,7 @@ module.exports = function (files, opts) {
             && !/\bglobal\b/.test(row.source)
             && !/\b__filename\b/.test(row.source)
             && !/\b__dirname\b/.test(row.source)
-        ) return input.queue(row);
+        ) return this.queue(row);
         
         var scope = opts.always
             ? { globals: {
@@ -47,15 +46,10 @@ module.exports = function (files, opts) {
         
         if (scope.globals.implicit.indexOf('process') >= 0) {
             if (!resolvedProcess) {
-                input.pause();
-                
-                var d = mdeps(processModulePath, { resolve: resolver });
-                d.on('data', function (r) {
-                    r.entry = false;
-                    output.queue(r);
-                });
-                d.on('end', function () {
-                    input.resume();
+                this.queue({
+                    id: processModulePath,
+                    source: processModuleSrc,
+                    deps: {}
                 });
             }
             
@@ -76,15 +70,13 @@ module.exports = function (files, opts) {
         }
         
         row.source = closeOver(globals, row.source);
-        input.queue(row);
+        this.queue(row);
     }
     
     function end () {
         this.ended = true;
         this.queue(null);
     }
-    
-    return duplexer(input, output);
 };
 
 function closeOver (globals, src) {
