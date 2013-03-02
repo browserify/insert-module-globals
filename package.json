@@ -9,7 +9,7 @@
     "dependencies": {
         "browser-resolve": "~0.0.2",
         "commondir": "~0.0.1",
-        "lexical-scope": "~0.0.3",
+        "lexical-scope": "~0.0.5",
         "module-deps": "~0.2.0",
         "process": "~0.5.1",
         "through": "~2.2.0",
