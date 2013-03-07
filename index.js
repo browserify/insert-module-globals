@@ -2,7 +2,6 @@ var parseScope = require('lexical-scope');
 var browserResolve = require('browser-resolve');
 var commondir = require('commondir');
 var through = require('through');
-var mdeps = require('module-deps');
 
 var path = require('path');
 var fs = require('fs');
