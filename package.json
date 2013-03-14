@@ -11,7 +11,6 @@
         "commondir": "~0.0.1",
         "lexical-scope": "~0.0.5",
         "process": "~0.5.1",
-        "buffer-browserify": "~0.0.5",
         "through": "~2.2.0",
         "duplexer": "~0.0.3",
         "JSONStream": "~0.4.3"
@@ -19,10 +18,13 @@
     "devDependencies": {
         "tap": "~0.4.0",
         "browser-pack": "~0.2.0",
-        "module-deps": "~0.2.0"
+        "buffer-browserify": "~0.0.5",
+        "module-deps": "~0.2.0",
+        "browserify": "~2.5.1"
     },
     "scripts": {
-        "test": "tap test/*.js"
+        "test": "tap test/*.js",
+        "prepublish": "./bundle.sh"
     },
     "repository": {
         "type": "git",

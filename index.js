@@ -9,7 +9,7 @@ var fs = require('fs');
 var processModulePath = require.resolve('process/browser.js');
 var processModuleSrc = fs.readFileSync(processModulePath, 'utf8');
 
-var bufferModulePath = require.resolve('buffer-browserify');
+var bufferModulePath = path.join(__dirname, 'buffer.js');
 var bufferModuleSrc = fs.readFileSync(bufferModulePath, 'utf8');
 
 var varNames = [ 'process', 'global', '__filename', '__dirname', 'Buffer' ];
@@ -72,7 +72,7 @@ module.exports = function (files, opts) {
             
             resolved.Buffer = true;
             row.deps.__browserify_buffer = bufferModulePath;
-            globals.Buffer = 'require("__browserify_buffer")';
+            globals.Buffer = 'require("__browserify_buffer").Buffer';
         }
         if (scope.globals.implicit.indexOf('global') >= 0) {
             globals.global = 'window';
