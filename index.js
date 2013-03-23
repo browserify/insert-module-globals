@@ -1,5 +1,4 @@
 var parseScope = require('lexical-scope');
-var browserResolve = require('browser-resolve');
 var commondir = require('commondir');
 var through = require('through');
 
@@ -21,7 +20,6 @@ module.exports = function (files, opts) {
     }
     if (!opts) opts = {};
     if (!files) files = [];
-    var resolver = opts.resolve || browserResolve;
     
     var basedir = opts.basedir || (files.length
         ? commondir(files.map(function (x) {

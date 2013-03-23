@@ -1,13 +1,12 @@
 {
     "name": "insert-module-globals",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "description": "insert implicit module globals into a module-deps stream",
     "main": "index.js",
     "bin": {
         "insert-module-globals": "bin/cmd.js"
     },
     "dependencies": {
-        "browser-resolve": "~0.0.2",
         "commondir": "~0.0.1",
         "lexical-scope": "~0.0.5",
         "process": "~0.5.1",
