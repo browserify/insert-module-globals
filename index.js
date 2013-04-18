@@ -20,15 +20,36 @@ module.exports = function (files, opts) {
     }
     if (!opts) opts = {};
     if (!files) files = [];
-    
+
     var basedir = opts.basedir || (files.length
         ? commondir(files.map(function (x) {
             return path.resolve(path.dirname(x));
         }))
         : '/'
     );
+
     var resolved = { process: false, Buffer: false };
+    var deps = { 
+        process: {
+            require: '__browserify_process',
+            name: '__browserify_process',
+            module: processModulePath
+        },
+        Buffer: {
+            require: '__browserify_buffer',
+            name: '__browserify_buffer',
+            module: bufferModulePath
+        } 
+    };
     
+    var globals = opts.globals || {};
+    for(var key in globals) {
+        resolved[key] = true;
+        deps[key].require = key;
+        deps[key].name = globals[key]['id'];
+        deps[key].module = globals[key].file;
+    }
+
     return through(write, end);
     
     function write (row) {
@@ -56,8 +77,8 @@ module.exports = function (files, opts) {
             }
             
             resolved.process = true;
-            row.deps.__browserify_process = processModulePath;
-            globals.process = 'require("__browserify_process")';
+            row.deps[deps.process.name] = deps.process.module;
+            globals.process = 'require("'+ deps.process.require + '")';
         }
         if (scope.globals.implicit.indexOf('Buffer') >= 0) {
             if (!resolved.Buffer) {
@@ -69,8 +90,8 @@ module.exports = function (files, opts) {
             }
             
             resolved.Buffer = true;
-            row.deps.__browserify_buffer = bufferModulePath;
-            globals.Buffer = 'require("__browserify_buffer").Buffer';
+            row.deps[deps.Buffer.name] = deps.Buffer.module;
+            globals.Buffer = 'require("' + deps.Buffer.require + '").Buffer';
         }
         if (scope.globals.implicit.indexOf('global') >= 0) {
             globals.global = 'window';
@@ -83,7 +104,7 @@ module.exports = function (files, opts) {
             var dir = path.dirname('/' + path.relative(basedir, row.id));
             globals.__dirname = JSON.stringify(dir);
         }
-        
+
         row.source = closeOver(globals, row.source);
         this.queue(row);
     }
