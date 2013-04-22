@@ -5,12 +5,6 @@ var through = require('through');
 var path = require('path');
 var fs = require('fs');
 
-var processModulePath = require.resolve('process/browser.js');
-var processModuleSrc = fs.readFileSync(processModulePath, 'utf8');
-
-var bufferModulePath = path.join(__dirname, 'buffer.js');
-var bufferModuleSrc = fs.readFileSync(bufferModulePath, 'utf8');
-
 var varNames = [ 'process', 'global', '__filename', '__dirname', 'Buffer' ];
 
 module.exports = function (files, opts) {
@@ -20,15 +14,50 @@ module.exports = function (files, opts) {
     }
     if (!opts) opts = {};
     if (!files) files = [];
-    
+
     var basedir = opts.basedir || (files.length
         ? commondir(files.map(function (x) {
             return path.resolve(path.dirname(x));
         }))
         : '/'
     );
+
     var resolved = { process: false, Buffer: false };
+    var deps = { };
     
+    var globals = opts.globals || {};
+    for(var key in globals) {
+        resolved[key] = true;
+        deps[key] = {
+            require: key,
+            name: globals[key].id,
+            module: globals[key].file
+        };
+    }
+
+    if(!deps.process) {
+        var processModulePath = require.resolve('process/browser.js');
+
+        deps.process = {
+            require: '__browserify_process',
+            name: '__browserify_process',
+            module: processModulePath,
+            src: fs.readFileSync(processModulePath, 'utf8')
+        };
+
+    }
+
+    if(!deps.Buffer) {
+        var bufferModulePath = path.join(__dirname, 'buffer.js');
+
+        deps.Buffer = {
+            require: '__browserify_buffer',
+            name: '__browserify_buffer',
+            module: bufferModulePath,
+            src: fs.readFileSync(bufferModulePath, 'utf8')
+        };
+    }
+
     return through(write, end);
     
     function write (row) {
@@ -49,28 +78,28 @@ module.exports = function (files, opts) {
         if (scope.globals.implicit.indexOf('process') >= 0) {
             if (!resolved.process) {
                 this.queue({
-                    id: processModulePath,
-                    source: processModuleSrc,
+                    id: deps.process.module,
+                    source: deps.process.src,
                     deps: {}
                 });
             }
             
             resolved.process = true;
-            row.deps.__browserify_process = processModulePath;
-            globals.process = 'require("__browserify_process")';
+            row.deps[deps.process.name] = deps.process.module;
+            globals.process = 'require("'+ deps.process.require + '")';
         }
         if (scope.globals.implicit.indexOf('Buffer') >= 0) {
             if (!resolved.Buffer) {
                 this.queue({
-                    id: bufferModulePath,
-                    source: bufferModuleSrc,
+                    id: deps.Buffer.module,
+                    source: deps.Buffer.src,
                     deps: {}
                 });
             }
             
             resolved.Buffer = true;
-            row.deps.__browserify_buffer = bufferModulePath;
-            globals.Buffer = 'require("__browserify_buffer").Buffer';
+            row.deps[deps.Buffer.name] = deps.Buffer.module;
+            globals.Buffer = 'require("' + deps.Buffer.require + '").Buffer';
         }
         if (scope.globals.implicit.indexOf('global') >= 0) {
             globals.global = 'window';
@@ -83,7 +112,7 @@ module.exports = function (files, opts) {
             var dir = path.dirname('/' + path.relative(basedir, row.id));
             globals.__dirname = JSON.stringify(dir);
         }
-        
+
         row.source = closeOver(globals, row.source);
         this.queue(row);
     }
