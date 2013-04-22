@@ -28,9 +28,11 @@ module.exports = function (files, opts) {
     var globals = opts.globals || {};
     for(var key in globals) {
         resolved[key] = true;
-        deps[key].require = key;
-        deps[key].name = globals[key]['id'];
-        deps[key].module = globals[key].file;
+        deps[key] = {
+            require: key,
+            name: globals[key].id,
+            module: globals[key].file
+        };
     }
 
     if(!deps.process) {
