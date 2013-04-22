@@ -36,7 +36,6 @@ module.exports = function (files, opts) {
     }
 
     if(!deps.process) {
-        console.log('loading Buffer', deps);
         var processModulePath = require.resolve('process/browser.js');
 
         deps.process = {
@@ -49,7 +48,6 @@ module.exports = function (files, opts) {
     }
 
     if(!deps.Buffer) {
-        console.log('loading Buffer', deps);
         var bufferModulePath = path.join(__dirname, 'buffer.js');
 
         deps.Buffer = {
