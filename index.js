@@ -5,12 +5,6 @@ var through = require('through');
 var path = require('path');
 var fs = require('fs');
 
-var processModulePath = require.resolve('process/browser.js');
-var processModuleSrc = fs.readFileSync(processModulePath, 'utf8');
-
-var bufferModulePath = path.join(__dirname, 'buffer.js');
-var bufferModuleSrc = fs.readFileSync(bufferModulePath, 'utf8');
-
 var varNames = [ 'process', 'global', '__filename', '__dirname', 'Buffer' ];
 
 module.exports = function (files, opts) {
@@ -29,18 +23,7 @@ module.exports = function (files, opts) {
     );
 
     var resolved = { process: false, Buffer: false };
-    var deps = { 
-        process: {
-            require: '__browserify_process',
-            name: '__browserify_process',
-            module: processModulePath
-        },
-        Buffer: {
-            require: '__browserify_buffer',
-            name: '__browserify_buffer',
-            module: bufferModulePath
-        } 
-    };
+    var deps = { };
     
     var globals = opts.globals || {};
     for(var key in globals) {
@@ -48,6 +31,31 @@ module.exports = function (files, opts) {
         deps[key].require = key;
         deps[key].name = globals[key]['id'];
         deps[key].module = globals[key].file;
+    }
+
+    if(!deps.process) {
+        console.log('loading Buffer', deps);
+        var processModulePath = require.resolve('process/browser.js');
+
+        deps.process = {
+            require: '__browserify_process',
+            name: '__browserify_process',
+            module: processModulePath,
+            src: fs.readFileSync(processModulePath, 'utf8')
+        };
+
+    }
+
+    if(!deps.Buffer) {
+        console.log('loading Buffer', deps);
+        var bufferModulePath = path.join(__dirname, 'buffer.js');
+
+        deps.Buffer = {
+            require: '__browserify_buffer',
+            name: '__browserify_buffer',
+            module: bufferModulePath,
+            src: fs.readFileSync(bufferModulePath, 'utf8')
+        };
     }
 
     return through(write, end);
@@ -70,8 +78,8 @@ module.exports = function (files, opts) {
         if (scope.globals.implicit.indexOf('process') >= 0) {
             if (!resolved.process) {
                 this.queue({
-                    id: processModulePath,
-                    source: processModuleSrc,
+                    id: deps.process.module,
+                    source: deps.process.src,
                     deps: {}
                 });
             }
@@ -83,8 +91,8 @@ module.exports = function (files, opts) {
         if (scope.globals.implicit.indexOf('Buffer') >= 0) {
             if (!resolved.Buffer) {
                 this.queue({
-                    id: bufferModulePath,
-                    source: bufferModuleSrc,
+                    id: deps.Buffer.module,
+                    source: deps.Buffer.src,
                     deps: {}
                 });
             }
