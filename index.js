@@ -76,11 +76,11 @@ module.exports = function (files, opts) {
             globals.global = 'window';
         }
         if (scope.globals.implicit.indexOf('__filename') >= 0) {
-            var file = '/' + path.relative(basedir, row.id);
+            var file = '/' + path.relative(basedir, row.id).replace(/\\/g, '/');
             globals.__filename = JSON.stringify(file);
         }
         if (scope.globals.implicit.indexOf('__dirname') >= 0) {
-            var dir = path.dirname('/' + path.relative(basedir, row.id));
+            var dir = path.dirname('/' + path.relative(basedir, row.id)).replace(/\\/g, '/');
             globals.__dirname = JSON.stringify(dir);
         }
         
