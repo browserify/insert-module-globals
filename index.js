@@ -35,6 +35,7 @@ module.exports = function (files, opts) {
         if (!opts.always
             && !/\bprocess\b/.test(row.source)
             && !/\bglobal\b/.test(row.source)
+            && !/\bGLOBAL\b/.test(row.source)
             && !/\bBuffer\b/.test(row.source)
             && !/\b__filename\b/.test(row.source)
             && !/\b__dirname\b/.test(row.source)
@@ -72,8 +73,10 @@ module.exports = function (files, opts) {
             row.deps.__browserify_buffer = bufferModulePath;
             globals.Buffer = 'require("__browserify_buffer").Buffer';
         }
-        if (scope.globals.implicit.indexOf('global') >= 0) {
+        if (scope.globals.implicit.indexOf('global') >= 0
+         || scope.globals.implicit.indexOf('GLOBAL') >= 0) {
             globals.global = 'window';
+            globals.GLOBAL = 'window';
         }
         if (scope.globals.implicit.indexOf('__filename') >= 0) {
             var file = '/' + path.relative(basedir, row.id);
