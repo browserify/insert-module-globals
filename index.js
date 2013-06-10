@@ -73,7 +73,7 @@ module.exports = function (files, opts) {
             globals.Buffer = 'require("__browserify_buffer").Buffer';
         }
         if (scope.globals.implicit.indexOf('global') >= 0) {
-            globals.global = 'window';
+            globals.global = 'self';
         }
         if (scope.globals.implicit.indexOf('__filename') >= 0) {
             var file = '/' + path.relative(basedir, row.id);
