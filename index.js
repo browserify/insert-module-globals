@@ -83,9 +83,12 @@ module.exports = function (files, opts) {
             var dir = path.dirname('/' + path.relative(basedir, row.id));
             globals.__dirname = JSON.stringify(dir);
         }
+
+        //remove hashbang if present
+        var src = String(src).replace(/^#![^\n]*\n/, '\n');
         
-        row.source = closeOver(globals, row.source);
-        this.queue(row);
+        row.source = closeOver(globals, src);
+        tr.queue(row);
     }
     
     function end () {
