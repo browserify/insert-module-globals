@@ -13,6 +13,46 @@ var bufferModuleSrc = fs.readFileSync(bufferModulePath, 'utf8');
 
 var varNames = [ 'process', 'global', '__filename', '__dirname', 'Buffer' ];
 
+var _vars = {
+    process: function (row, globals) {
+        if (!this.resolved.process) {
+            this.queue({
+                id: processModulePath,
+                source: processModuleSrc,
+                deps: {}
+            });
+        }
+        
+        this.resolved.process = true;
+        row.deps.__browserify_process = processModulePath;
+        globals.process = 'require("__browserify_process")';
+    },
+    global: function (row, globals) {
+        globals.global = 'self';
+    },
+    Buffer: function (row, globals) {
+        if (!this.resolved.Buffer) {
+            this.queue({
+                id: bufferModulePath,
+                source: bufferModuleSrc,
+                deps: {}
+            });
+        }
+        
+        this.resolved.Buffer = true;
+        row.deps.__browserify_buffer = bufferModulePath;
+        globals.Buffer = 'require("__browserify_buffer").Buffer';
+    },
+    __filename: function (row, globals) {
+        var file = '/' + path.relative(this.basedir, row.id);
+        globals.__filename = JSON.stringify(file);
+    },
+    __dirname: function (row, globals) {
+        var dir = path.dirname('/' + path.relative(this.basedir, row.id));
+        globals.__dirname = JSON.stringify(dir);
+    }
+}
+
 module.exports = function (files, opts) {
     if (!Array.isArray(files)) {
         opts = files;
@@ -21,73 +61,55 @@ module.exports = function (files, opts) {
     if (!opts) opts = {};
     if (!files) files = [];
     
+    var vars = opts.vars || _vars
+
     var basedir = opts.basedir || (files.length
         ? commondir(files.map(function (x) {
             return path.resolve(path.dirname(x));
         }))
         : '/'
     );
-    var resolved = { process: false, Buffer: false };
-    
-    return through(write, end);
+
+    console.error('H', files, opts)
+    var varNames = Object.keys(vars)
+
+    var quick = varNames.map(function (name) {
+        return new RegExp('\\b'+name+'\\b', 'g')
+    })
+
+    var tr = through(write, end);
+
+    tr.resolved = { /*process: false, Buffer: false*/ };
+    tr.basedir = basedir
+
+    return tr
     
     function write (row) {
-        if (!opts.always
-            && !/\bprocess\b/.test(row.source)
-            && !/\bglobal\b/.test(row.source)
-            && !/\bBuffer\b/.test(row.source)
-            && !/\b__filename\b/.test(row.source)
-            && !/\b__dirname\b/.test(row.source)
-        ) return this.queue(row);
-        
+
+        console.error(row.id)
+
+        //remove hashbang if present
+        row.source = String(row.source).replace(/^#![^\n]*\n/, '\n');
+
+        if (!opts.always 
+          && quick.every(function (rx) { return !rx.test(row.source) })
+        )  return this.queue(row);
+
         var scope = opts.always
             ? { globals: { implicit: varNames } }
             : parseScope(row.source)
         ;
+
         var globals = {};
-        
-        if (scope.globals.implicit.indexOf('process') >= 0) {
-            if (!resolved.process) {
-                this.queue({
-                    id: processModulePath,
-                    source: processModuleSrc,
-                    deps: {}
-                });
-            }
-            
-            resolved.process = true;
-            row.deps.__browserify_process = processModulePath;
-            globals.process = 'require("__browserify_process")';
-        }
-        if (scope.globals.implicit.indexOf('Buffer') >= 0) {
-            if (!resolved.Buffer) {
-                this.queue({
-                    id: bufferModulePath,
-                    source: bufferModuleSrc,
-                    deps: {}
-                });
-            }
-            
-            resolved.Buffer = true;
-            row.deps.__browserify_buffer = bufferModulePath;
-            globals.Buffer = 'require("__browserify_buffer").Buffer';
-        }
-        if (scope.globals.implicit.indexOf('global') >= 0) {
-            globals.global = 'self';
-        }
-        if (scope.globals.implicit.indexOf('__filename') >= 0) {
-            var file = '/' + path.relative(basedir, row.id);
-            globals.__filename = JSON.stringify(file);
-        }
-        if (scope.globals.implicit.indexOf('__dirname') >= 0) {
-            var dir = path.dirname('/' + path.relative(basedir, row.id));
-            globals.__dirname = JSON.stringify(dir);
+
+        for(var name in vars) {
+          if(scope.globals.implicit.indexOf(name))
+            vars[name].call(this, row, globals);
         }
 
-        //remove hashbang if present
-        var src = String(src).replace(/^#![^\n]*\n/, '\n');
-        
-        row.source = closeOver(globals, src);
+        row.source = closeOver(globals, row.source)
+
+        console.error(row.id)
         this.queue(row);
     }
     
