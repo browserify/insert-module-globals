@@ -11,8 +11,6 @@ var processModuleSrc = fs.readFileSync(processModulePath, 'utf8');
 var bufferModulePath = path.join(__dirname, 'buffer.js');
 var bufferModuleSrc = fs.readFileSync(bufferModulePath, 'utf8');
 
-var varNames = [ 'process', 'global', '__filename', '__dirname', 'Buffer' ];
-
 var _vars = {
     process: function (row, globals) {
         if (!this.resolved.process) {
@@ -70,7 +68,6 @@ module.exports = function (files, opts) {
         : '/'
     );
 
-    console.error('H', files, opts)
     var varNames = Object.keys(vars)
 
     var quick = varNames.map(function (name) {
@@ -85,8 +82,6 @@ module.exports = function (files, opts) {
     return tr
     
     function write (row) {
-
-        console.error(row.id)
 
         //remove hashbang if present
         row.source = String(row.source).replace(/^#![^\n]*\n/, '\n');
@@ -103,13 +98,12 @@ module.exports = function (files, opts) {
         var globals = {};
 
         for(var name in vars) {
-          if(scope.globals.implicit.indexOf(name))
+          if(~scope.globals.implicit.indexOf(name))
             vars[name].call(this, row, globals);
         }
 
         row.source = closeOver(globals, row.source)
 
-        console.error(row.id)
         this.queue(row);
     }
     
