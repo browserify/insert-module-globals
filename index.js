@@ -88,7 +88,7 @@ module.exports = function (files, opts) {
         var src = String(src).replace(/^#![^\n]*\n/, '\n');
         
         row.source = closeOver(globals, src);
-        tr.queue(row);
+        this.queue(row);
     }
     
     function end () {
