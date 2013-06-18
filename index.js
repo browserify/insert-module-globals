@@ -12,42 +12,29 @@ var bufferModulePath = path.join(__dirname, 'buffer.js');
 var bufferModuleSrc = fs.readFileSync(bufferModulePath, 'utf8');
 
 var _vars = {
-    process: function (row, globals) {
-        if (!this.resolved.process) {
-            this.queue({
-                id: processModulePath,
-                source: processModuleSrc,
-                deps: {}
-            });
+    process: function () {
+        return {
+            id: processModulePath,
+            source: processModuleSrc,
         }
-        
-        this.resolved.process = true;
-        row.deps.__browserify_process = processModulePath;
-        globals.process = 'require("__browserify_process")';
     },
-    global: function (row, globals) {
-        globals.global = 'self';
+    global: function (row, basedir) {
+        return 'self'
     },
-    Buffer: function (row, globals) {
-        if (!this.resolved.Buffer) {
-            this.queue({
-                id: bufferModulePath,
-                source: bufferModuleSrc,
-                deps: {}
-            });
+    Buffer: function () {
+        return {
+            id: bufferModulePath,
+            source: bufferModuleSrc,
+            suffix: ".Buffer"
         }
-        
-        this.resolved.Buffer = true;
-        row.deps.__browserify_buffer = bufferModulePath;
-        globals.Buffer = 'require("__browserify_buffer").Buffer';
     },
-    __filename: function (row, globals) {
-        var file = '/' + path.relative(this.basedir, row.id);
-        globals.__filename = JSON.stringify(file);
+    __filename: function (row, basedir) {
+        var file = '/' + path.relative(basedir, row.id);
+        return JSON.stringify(file);
     },
-    __dirname: function (row, globals) {
-        var dir = path.dirname('/' + path.relative(this.basedir, row.id));
-        globals.__dirname = JSON.stringify(dir);
+    __dirname: function (row, basedir) {
+        var dir = path.dirname('/' + path.relative(basedir, row.id));
+        return JSON.stringify(dir);
     }
 }
 
@@ -74,12 +61,9 @@ module.exports = function (files, opts) {
         return new RegExp('\\b'+name+'\\b', 'g')
     })
 
-    var tr = through(write, end);
+    var resolved = {};
 
-    tr.resolved = { /*process: false, Buffer: false*/ };
-    tr.basedir = basedir
-
-    return tr
+    return through(write, end);
     
     function write (row) {
 
@@ -96,10 +80,33 @@ module.exports = function (files, opts) {
         ;
 
         var globals = {};
-
+        var tr = this;
+        
         for(var name in vars) {
-          if(~scope.globals.implicit.indexOf(name))
-            vars[name].call(this, row, globals);
+            if(~scope.globals.implicit.indexOf(name)) {
+                var value = vars[name].call(this, row, basedir);
+                if(!value)
+                    ;
+                else if('object' == typeof value) {
+                    value.deps = value.deps || {}
+
+                    if(!resolved[name])
+                      this.queue(value);
+
+                    var igName = '__browserify_'+name
+
+                    row.deps[igName] = value.id
+
+                    resolved[name] = true
+                    globals[name] = 
+                          'require(' 
+                        + JSON.stringify(igName) 
+                        + ')'
+                        + (value.suffix || '');
+                }
+                else
+                    globals[name] = value;                  
+            }
         }
 
         row.source = closeOver(globals, row.source)
@@ -112,6 +119,8 @@ module.exports = function (files, opts) {
         this.queue(null);
     }
 };
+
+module.exports.vars = _vars
 
 function closeOver (globals, src) {
     var keys = Object.keys(globals);
