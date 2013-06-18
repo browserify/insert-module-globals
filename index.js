@@ -11,7 +11,32 @@ var processModuleSrc = fs.readFileSync(processModulePath, 'utf8');
 var bufferModulePath = path.join(__dirname, 'buffer.js');
 var bufferModuleSrc = fs.readFileSync(bufferModulePath, 'utf8');
 
-var varNames = [ 'process', 'global', '__filename', '__dirname', 'Buffer' ];
+var _vars = {
+    process: function () {
+        return {
+            id: processModulePath,
+            source: processModuleSrc,
+        }
+    },
+    global: function (row, basedir) {
+        return 'self'
+    },
+    Buffer: function () {
+        return {
+            id: bufferModulePath,
+            source: bufferModuleSrc,
+            suffix: ".Buffer"
+        }
+    },
+    __filename: function (row, basedir) {
+        var file = '/' + path.relative(basedir, row.id);
+        return JSON.stringify(file);
+    },
+    __dirname: function (row, basedir) {
+        var dir = path.dirname('/' + path.relative(basedir, row.id));
+        return JSON.stringify(dir);
+    }
+}
 
 module.exports = function (files, opts) {
     if (!Array.isArray(files)) {
@@ -21,73 +46,71 @@ module.exports = function (files, opts) {
     if (!opts) opts = {};
     if (!files) files = [];
     
+    var vars = opts.vars || _vars
+
     var basedir = opts.basedir || (files.length
         ? commondir(files.map(function (x) {
             return path.resolve(path.dirname(x));
         }))
         : '/'
     );
-    var resolved = { process: false, Buffer: false };
-    
+
+    var varNames = Object.keys(vars)
+
+    var quick = varNames.map(function (name) {
+        return new RegExp('\\b'+name+'\\b', 'g')
+    })
+
+    var resolved = {};
+
     return through(write, end);
     
     function write (row) {
-        if (!opts.always
-            && !/\bprocess\b/.test(row.source)
-            && !/\bglobal\b/.test(row.source)
-            && !/\bBuffer\b/.test(row.source)
-            && !/\b__filename\b/.test(row.source)
-            && !/\b__dirname\b/.test(row.source)
-        ) return this.queue(row);
-        
+
+        //remove hashbang if present
+        row.source = String(row.source).replace(/^#![^\n]*\n/, '\n');
+
+        if (!opts.always 
+          && quick.every(function (rx) { return !rx.test(row.source) })
+        )  return this.queue(row);
+
         var scope = opts.always
             ? { globals: { implicit: varNames } }
             : parseScope(row.source)
         ;
+
         var globals = {};
+        var tr = this;
         
-        if (scope.globals.implicit.indexOf('process') >= 0) {
-            if (!resolved.process) {
-                this.queue({
-                    id: processModulePath,
-                    source: processModuleSrc,
-                    deps: {}
-                });
+        for(var name in vars) {
+            if(~scope.globals.implicit.indexOf(name)) {
+                var value = vars[name].call(this, row, basedir);
+                if(!value)
+                    ;
+                else if('object' == typeof value) {
+                    value.deps = value.deps || {}
+
+                    if(!resolved[name])
+                      this.queue(value);
+
+                    var igName = '__browserify_'+name
+
+                    row.deps[igName] = value.id
+
+                    resolved[name] = true
+                    globals[name] = 
+                          'require(' 
+                        + JSON.stringify(igName) 
+                        + ')'
+                        + (value.suffix || '');
+                }
+                else
+                    globals[name] = value;                  
             }
-            
-            resolved.process = true;
-            row.deps.__browserify_process = processModulePath;
-            globals.process = 'require("__browserify_process")';
-        }
-        if (scope.globals.implicit.indexOf('Buffer') >= 0) {
-            if (!resolved.Buffer) {
-                this.queue({
-                    id: bufferModulePath,
-                    source: bufferModuleSrc,
-                    deps: {}
-                });
-            }
-            
-            resolved.Buffer = true;
-            row.deps.__browserify_buffer = bufferModulePath;
-            globals.Buffer = 'require("__browserify_buffer").Buffer';
-        }
-        if (scope.globals.implicit.indexOf('global') >= 0) {
-            globals.global = 'self';
-        }
-        if (scope.globals.implicit.indexOf('__filename') >= 0) {
-            var file = '/' + path.relative(basedir, row.id);
-            globals.__filename = JSON.stringify(file);
-        }
-        if (scope.globals.implicit.indexOf('__dirname') >= 0) {
-            var dir = path.dirname('/' + path.relative(basedir, row.id));
-            globals.__dirname = JSON.stringify(dir);
         }
 
-        //remove hashbang if present
-        var src = String(src).replace(/^#![^\n]*\n/, '\n');
-        
-        row.source = closeOver(globals, src);
+        row.source = closeOver(globals, row.source)
+
         this.queue(row);
     }
     
@@ -96,6 +119,8 @@ module.exports = function (files, opts) {
         this.queue(null);
     }
 };
+
+module.exports.vars = _vars
 
 function closeOver (globals, src) {
     var keys = Object.keys(globals);
