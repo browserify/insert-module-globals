@@ -82,36 +82,30 @@ module.exports = function (files, opts) {
         var globals = {};
         var tr = this;
         
-        for(var name in vars) {
-            if(~scope.globals.implicit.indexOf(name)) {
-                var value = vars[name].call(this, row, basedir);
-                if(!value)
-                    ;
-                else if('object' == typeof value) {
-                    value.deps = value.deps || {}
-
-                    if(!resolved[name])
-                      this.queue(value);
-
-                    var igName = '__browserify_'+name
-
-                    row.deps[igName] = value.id
-
-                    resolved[name] = true
-                    globals[name] = 
-                          'require(' 
-                        + JSON.stringify(igName) 
+        Object.keys(vars).forEach(function (name) {
+            if (scope.globals.implicit.indexOf(name) >= 0) {
+                var value = vars[name].call(tr, row, basedir);
+                if (!value) {}
+                else if ('object' == typeof value) {
+                    value.deps = value.deps || {};
+                    if (!resolved[name]) tr.queue(value);
+                    
+                    var igName = '__browserify_' + name;
+                    row.deps[igName] = value.id;
+                    
+                    resolved[name] = true;
+                    globals[name] = 'require(' 
+                        + JSON.stringify(igName)
                         + ')'
-                        + (value.suffix || '');
+                        + (value.suffix || '')
+                    ;
                 }
-                else
-                    globals[name] = value;                  
+                else globals[name] = value;
             }
-        }
-
-        row.source = closeOver(globals, row.source)
-
-        this.queue(row);
+        });
+        
+        row.source = closeOver(globals, row.source);
+        tr.queue(row);
     }
     
     function end () {
