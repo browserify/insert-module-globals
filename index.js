@@ -87,7 +87,10 @@ module.exports = function (files, opts) {
                 if (!value) {}
                 else if ('object' == typeof value) {
                     value.deps = value.deps || {};
-                    if (!resolved[name]) tr.queue(value);
+                    if (!resolved[name]) {
+                        tr.queue(value);
+                        tr.emit('dep', value);
+                    }
                     
                     var igName = '__browserify_' + name;
                     row.deps[igName] = value.id;
