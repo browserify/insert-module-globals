@@ -1,6 +1,6 @@
 {
     "name": "insert-module-globals",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "description": "insert implicit module globals into a module-deps stream",
     "main": "index.js",
     "bin": {
