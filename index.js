@@ -54,35 +54,34 @@ module.exports = function (files, opts) {
         }))
         : '/'
     );
-
-    var varNames = Object.keys(vars)
-
-    var quick = varNames.map(function (name) {
-        return new RegExp('\\b'+name+'\\b', 'g')
-    })
-
+    var varNames = Object.keys(vars);
+    
+    var quick = RegExp(varNames.map(function (name) {
+        return '\\b' + name + '\\b';
+    }).join('|'));
+    
     var resolved = {};
 
     return through(write, end);
     
     function write (row) {
-
+        var tr = this;
+        
         //remove hashbang if present
         row.source = String(row.source).replace(/^#![^\n]*\n/, '\n');
-
-        if (!opts.always 
-          && quick.every(function (rx) { return !rx.test(row.source) })
-        )  return this.queue(row);
-
+        
+        if (opts.always !== true && !quick.test(row.source)) {
+            return tr.queue(row);
+        }
+        
         var scope = opts.always
             ? { globals: { implicit: varNames } }
             : parseScope(row.source)
         ;
-
-        var globals = {};
-        var tr = this;
         
-        Object.keys(vars).forEach(function (name) {
+        var globals = {};
+        
+        varNames.forEach(function (name) {
             if (scope.globals.implicit.indexOf(name) >= 0) {
                 var value = vars[name].call(tr, row, basedir);
                 if (!value) {}
