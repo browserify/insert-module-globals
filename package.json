@@ -12,7 +12,8 @@
         "process": "~0.5.1",
         "through": "~2.2.0",
         "duplexer": "~0.0.3",
-        "JSONStream": "~0.4.3"
+        "JSONStream": "~0.4.3",
+        "token-scope": "~1.0.0"
     },
     "devDependencies": {
         "tap": "~0.4.0",
