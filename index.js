@@ -1,3 +1,4 @@
+var detectScope = require('token-scope');
 var parseScope = require('lexical-scope');
 var commondir = require('commondir');
 var through = require('through');
@@ -76,7 +77,7 @@ module.exports = function (files, opts) {
         
         var scope = opts.always
             ? { globals: { implicit: varNames } }
-            : parseScope(row.source)
+            : (hasScope(row.source, varNames) ? parseScope(row.source) : { globals: { implicit: [] } })
         ;
         
         var globals = {};
@@ -123,4 +124,12 @@ function closeOver (globals, src) {
     return '(function(' + keys + '){' + src + '\n})('
         + keys.map(function (key) { return globals[key] }).join(',') + ')'
     ;
+}
+
+function hasScope(src, identifiers) {
+    var scope = detectScope(src)
+    for (var i = 0; i < scope.length; i++) {
+        if (identifiers.indexOf(scope[i]) != -1) return true;
+    }
+    return false;
 }
