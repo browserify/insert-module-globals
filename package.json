@@ -17,9 +17,9 @@
     "devDependencies": {
         "tap": "~0.4.0",
         "browser-pack": "~0.2.0",
-        "buffer-browserify": "~0.0.5",
+        "buffer-browserify": "0.1.x",
         "module-deps": "~0.2.0",
-        "browserify": "~2.5.1"
+        "browserify": "2.x.x"
     },
     "scripts": {
         "test": "tap test/*.js",
