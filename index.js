@@ -120,7 +120,8 @@ module.exports.vars = _vars
 
 function closeOver (globals, src) {
     var keys = Object.keys(globals);
-    return '(function(' + keys + '){' + src + '\n})('
-        + keys.map(function (key) { return globals[key] }).join(',') + ')'
-    ;
+    if (keys.length === 0) return src;
+    return 'var ' + keys.map(function (key) {
+        return key + '=' + globals[key];
+    }).join(',') + ';' + src;
 }
