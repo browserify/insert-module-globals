@@ -19,7 +19,7 @@
         "browser-pack": "~0.10.2",
         "buffer-browserify": "~0.2.2",
         "module-deps": "~1.0.2",
-        "browserify": "~2.31.1"
+        "browserify": "~2.32.0"
     },
     "scripts": {
         "test": "tap test/*.js",
