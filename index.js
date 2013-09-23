@@ -19,7 +19,9 @@ var _vars = {
         }
     },
     global: function (row, basedir) {
-        return 'self'
+        return 'typeof self !== "undefined" ? self : '
+            + 'typeof window !== "undefined" ? window : {}'
+        ;
     },
     Buffer: function () {
         return {
