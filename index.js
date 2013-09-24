@@ -31,12 +31,16 @@ var _vars = {
         }
     },
     __filename: function (row, basedir) {
-        var file = '/' + path.relative(basedir, row.id);
-        return JSON.stringify(file);
+        if (row.id) {
+            var file = '/' + path.relative(basedir, row.id);
+            return JSON.stringify(file);
+        }
     },
     __dirname: function (row, basedir) {
-        var dir = path.dirname('/' + path.relative(basedir, row.id));
-        return JSON.stringify(dir);
+        if (row.id) {
+            var dir = path.dirname('/' + path.relative(basedir, row.id));
+            return JSON.stringify(dir);
+        }
     }
 }
 
