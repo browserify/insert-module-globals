@@ -17,7 +17,7 @@
     "devDependencies": {
         "tap": "~0.4.0",
         "browser-pack": "~0.10.2",
-        "native-buffer-browserify": "~1.0.3",
+        "native-buffer-browserify": "~1.1.0",
         "module-deps": "~1.0.2",
         "browserify": "~2.32.0"
     },
