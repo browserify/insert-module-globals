@@ -1,48 +1,49 @@
 {
-    "name": "insert-module-globals",
-    "version": "2.1.1",
-    "description": "insert implicit module globals into a module-deps stream",
-    "main": "index.js",
-    "bin": {
-        "insert-module-globals": "bin/cmd.js"
-    },
-    "dependencies": {
-        "commondir": "~0.0.1",
-        "lexical-scope": "~0.0.14",
-        "process": "~0.5.1",
-        "through": "~2.3.4",
-        "duplexer": "~0.1.1",
-        "JSONStream": "~0.7.1"
-    },
-    "devDependencies": {
-        "tap": "~0.4.0",
-        "browser-pack": "~0.10.2",
-        "native-buffer-browserify": "~1.2.2",
-        "module-deps": "~1.0.2",
-        "browserify": "~2.32.0"
-    },
-    "scripts": {
-        "test": "tap test/*.js",
-        "prepublish": "./bundle.sh"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git://github.com/substack/insert-module-globals.git"
-    },
-    "homepage": "https://github.com/substack/insert-module-globals",
-    "keywords": [
-        "__filename",
-        "__dirname",
-        "global",
-        "process",
-        "module-deps",
-        "browser-pack",
-        "browserify"
-    ],
-    "author": {
-        "name": "James Halliday",
-        "email": "mail@substack.net",
-        "url": "http://substack.net"
-    },
-    "license": "MIT"
+  "name": "insert-module-globals",
+  "version": "2.1.1",
+  "description": "insert implicit module globals into a module-deps stream",
+  "main": "index.js",
+  "bin": {
+    "insert-module-globals": "bin/cmd.js"
+  },
+  "dependencies": {
+    "commondir": "~0.0.1",
+    "lexical-scope": "~0.0.14",
+    "process": "~0.5.1",
+    "through": "~2.3.4",
+    "duplexer": "~0.1.1",
+    "JSONStream": "~0.7.1",
+    "defined": "0.0.0"
+  },
+  "devDependencies": {
+    "tap": "~0.4.0",
+    "browser-pack": "~0.10.2",
+    "native-buffer-browserify": "~1.2.2",
+    "module-deps": "~1.0.2",
+    "browserify": "~2.32.0"
+  },
+  "scripts": {
+    "test": "tap test/*.js",
+    "prepublish": "./bundle.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/substack/insert-module-globals.git"
+  },
+  "homepage": "https://github.com/substack/insert-module-globals",
+  "keywords": [
+    "__filename",
+    "__dirname",
+    "global",
+    "process",
+    "module-deps",
+    "browser-pack",
+    "browserify"
+  ],
+  "author": {
+    "name": "James Halliday",
+    "email": "mail@substack.net",
+    "url": "http://substack.net"
+  },
+  "license": "MIT"
 }
