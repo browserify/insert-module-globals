@@ -24,7 +24,7 @@
   },
   "scripts": {
     "test": "tap test/*.js",
-    "postinstall": "./build.js"
+    "postinstall": "node build"
   },
   "repository": {
     "type": "git",
