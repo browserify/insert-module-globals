@@ -14,7 +14,7 @@
     "duplexer": "~0.1.1",
     "JSONStream": "~0.7.1",
     "defined": "0.0.0",
-    "native-buffer-browserify": "~2.0.13",
+    "native-buffer-browserify": "~2.0.15",
     "browserify": "~3.24.1"
   },
   "devDependencies": {
@@ -23,8 +23,7 @@
     "module-deps": "~1.0.2"
   },
   "scripts": {
-    "test": "tap test/*.js",
-    "postinstall": "./build.js"
+    "test": "tap test/*.js"
   },
   "repository": {
     "type": "git",

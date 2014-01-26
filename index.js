@@ -9,7 +9,7 @@ var fs = require('fs');
 var processModulePath = require.resolve('process/browser.js');
 var processModuleSrc = fs.readFileSync(processModulePath, 'utf8');
 
-var bufferModulePath = path.join(__dirname, 'buffer.js');
+var bufferModulePath = require.resolve('native-buffer-browserify/bundle.js');
 var bufferModuleSrc = fs.readFileSync(bufferModulePath, 'utf8');
 
 var _vars = {
