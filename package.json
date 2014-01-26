@@ -13,18 +13,18 @@
     "through": "~2.3.4",
     "duplexer": "~0.1.1",
     "JSONStream": "~0.7.1",
-    "defined": "0.0.0"
+    "defined": "0.0.0",
+    "native-buffer-browserify": "~2.0.13",
+    "browserify": "~3.24.1"
   },
   "devDependencies": {
     "tap": "~0.4.0",
     "browser-pack": "~0.10.2",
-    "native-buffer-browserify": "~2.0.0",
-    "module-deps": "~1.0.2",
-    "browserify": "~2.32.0"
+    "module-deps": "~1.0.2"
   },
   "scripts": {
     "test": "tap test/*.js",
-    "prepublish": "./bundle.sh"
+    "postinstall": "./build.js"
   },
   "repository": {
     "type": "git",
