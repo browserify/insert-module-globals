@@ -1,6 +1,6 @@
 {
   "name": "insert-module-globals",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "insert implicit module globals into a module-deps stream",
   "main": "index.js",
   "bin": {
@@ -18,7 +18,7 @@
   "devDependencies": {
     "tap": "~0.4.0",
     "browser-pack": "~0.10.2",
-    "native-buffer-browserify": "~2.0.0",
+    "native-buffer-browserify": "2.0.13",
     "module-deps": "~1.0.2",
     "browserify": "~2.32.0"
   },
