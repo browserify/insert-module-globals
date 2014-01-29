@@ -46,7 +46,10 @@ module.exports = function (file, opts) {
     function write (buf) { chunks.push(buf) }
     
     function end () {
-        var source = Buffer.concat(chunks).toString('utf8');
+        var source = Buffer.isBuffer(chunks[0])
+            ? Buffer.concat(chunks).toString('utf8')
+            : chunks.join('')
+        ;
         source = source.replace(/^#![^\n]*\n/, '\n');
         
         if (opts.always !== true && !quick.test(source)) {
