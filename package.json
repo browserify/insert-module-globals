@@ -9,7 +9,8 @@
   "dependencies": {
     "lexical-scope": "~0.0.14",
     "process": "~0.5.1",
-    "through": "~2.3.4"
+    "through": "~2.3.4",
+    "JSONStream": "~0.7.1"
   },
   "devDependencies": {
     "tap": "~0.4.0",

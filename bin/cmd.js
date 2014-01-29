@@ -1,12 +1,23 @@
 #!/usr/bin/env node
 
-var insert = require('../')(process.argv.slice(2));
+var insert = require('../');
+var through = require('through');
+var concat = require('concat-stream');
 var JSONStream = require('JSONStream');
 
-var parse = JSONStream.parse([ true ]);
-var stringify = JSONStream.stringify();
+process.stdin
+    .pipe(JSONStream.parse([ true ]))
+    .pipe(through(write))
+    .pipe(JSONStream.stringify())
+    .pipe(process.stdout)
+;
 
-stringify.pipe(process.stdout);
-parse.pipe(insert).pipe(stringify);
-
-process.stdin.pipe(parse);
+function write (row) {
+    var self = this;
+    var s = insert(row.id);
+    s.pipe(concat(function (src) {
+        row.source = src.toString('utf8');
+        self.queue(row);
+    }));
+    s.end(row.source);
+}
