@@ -1,7 +1,5 @@
 var parseScope = require('lexical-scope');
-var commondir = require('commondir');
 var through = require('through');
-var defined = require('defined');
 
 var path = require('path');
 var fs = require('fs');
