@@ -91,7 +91,7 @@ function closeOver (globals, src) {
     }
     // necessary to make arguments[3..6] still work for workerify etc
     // a,b,c,arguments[3..6],d,e,f...
-    var extra = [ '__argument', '__argument', '__argument', '__argument' ];
+    var extra = [ '__argument1', '__argument2', '__argument3', '__argument4' ];
     var names = keys.slice(0,3).concat(extra).concat(keys.slice(3));
     values.splice(3, 0,
         'arguments[3]','arguments[4]',
