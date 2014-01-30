@@ -58,10 +58,19 @@ module.exports = function (file, opts) {
             return;
         }
         
-        var scope = opts.always
-            ? { globals: { implicit: varNames } }
-            : parseScope(source)
-        ;
+        var scope;
+        if (opts.always) {
+            scope = { globals: { implicit: varNames } };
+        } else {
+            try {
+                scope = parseScope(source);
+            } catch(ex) {
+                var message = ex && ex.message ? ex.message : ex;
+                return this.emit('error', new Error(
+                            'Parsing file ' + file + ': ' + message
+                            ));
+            }
+        }
         
         var globals = {};
         
