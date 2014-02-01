@@ -28,6 +28,7 @@ var defaultVars = {
 };
 
 module.exports = function (file, opts) {
+    if (/\.json$/i.test(file)) return through();
     if (!opts) opts = {};
     
     var basedir = opts.basedir || '/';
