@@ -51,7 +51,7 @@ module.exports = function (file, opts) {
             ? Buffer.concat(chunks).toString('utf8')
             : chunks.join('')
         ;
-        source = '(function () { ' + source.replace(/^#![^\n]*\n/, '\n') + '})()';
+        source = source.replace(/^#![^\n]*\n/, '\n');
         
         if (opts.always !== true && !quick.test(source)) {
             this.queue(source);
@@ -62,7 +62,7 @@ module.exports = function (file, opts) {
         try {
             var scope = opts.always
                 ? { globals: { implicit: varNames } }
-                : parseScope(source)
+                : parseScope('(function(){' + source + '})()')
             ;
         }
         catch (err) {
