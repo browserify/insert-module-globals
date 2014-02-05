@@ -62,7 +62,7 @@ module.exports = function (file, opts) {
         try {
             var scope = opts.always
                 ? { globals: { implicit: varNames } }
-                : parseScope('(function(){' + source + '})()')
+                : parseScope('(function(){\n' + source + '\n})()')
             ;
         }
         catch (err) {
