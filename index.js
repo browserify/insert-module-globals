@@ -30,39 +30,39 @@ var defaultVars = {
 module.exports = function (file, opts) {
     if (/\.json$/i.test(file)) return through();
     if (!opts) opts = {};
-    
+
     var basedir = opts.basedir || '/';
     var vars = opts.vars || defaultVars
     var varNames = Object.keys(vars);
-    
+
     var quick = RegExp(varNames.map(function (name) {
         return '\\b' + name + '\\b';
     }).join('|'));
-    
+
     var resolved = {};
     var chunks = [];
-    
+
     return through(write, end);
-    
+
     function write (buf) { chunks.push(buf) }
-    
+
     function end () {
         var source = Buffer.isBuffer(chunks[0])
             ? Buffer.concat(chunks).toString('utf8')
             : chunks.join('')
         ;
         source = source.replace(/^#![^\n]*\n/, '\n');
-        
+
         if (opts.always !== true && !quick.test(source)) {
             this.queue(source);
             this.queue(null);
             return;
         }
-        
+
         try {
             var scope = opts.always
                 ? { globals: { implicit: varNames } }
-                : parseScope('(function(){' + source + '})()')
+                : parseScope('(function(){\n' + source + '\n})()')
             ;
         }
         catch (err) {
@@ -73,16 +73,16 @@ module.exports = function (file, opts) {
             e.filename = file;
             return this.emit('error', e);
         }
-        
+
         var globals = {};
-        
+
         varNames.forEach(function (name) {
             if (scope.globals.implicit.indexOf(name) >= 0) {
                 var value = vars[name](file, basedir);
                 if (value) globals[name] = value;
             }
         });
-        
+
         this.queue(closeOver(globals, source));
         this.queue(null);
     }
@@ -94,10 +94,10 @@ function closeOver (globals, src) {
     var keys = Object.keys(globals);
     if (keys.length === 0) return src;
     var values = keys.map(function (key) { return globals[key] });
-    
+
     if (keys.length <= 3) {
-        return '(function (' + keys.join(',') + '){'
-            + src + '}).call(this,' + values.join(',') + ')'
+        return '(function (' + keys.join(',') + '){\n'
+            + src + '\n}).call(this,' + values.join(',') + ')'
         ;
     }
     // necessary to make arguments[3..6] still work for workerify etc
@@ -108,8 +108,8 @@ function closeOver (globals, src) {
         'arguments[3]','arguments[4]',
         'arguments[5]','arguments[6]'
     );
-    
-    return '(function (' + names.join(',') + '){'
-        + src + '}).call(this,' + values.join(',') + ')'
+
+    return '(function (' + names.join(',') + '){\n'
+        + src + '\n}).call(this,' + values.join(',') + ')'
     ;
 }
