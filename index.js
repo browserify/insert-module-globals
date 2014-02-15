@@ -47,6 +47,7 @@ module.exports = function (file, opts) {
     function write (buf) { chunks.push(buf) }
     
     function end () {
+        var self = this;
         var source = Buffer.isBuffer(chunks[0])
             ? Buffer.concat(chunks).toString('utf8')
             : chunks.join('')
@@ -79,7 +80,10 @@ module.exports = function (file, opts) {
         varNames.forEach(function (name) {
             if (scope.globals.implicit.indexOf(name) >= 0) {
                 var value = vars[name](file, basedir);
-                if (value) globals[name] = value;
+                if (value) {
+                    globals[name] = value;
+                    self.emit('global', name);
+                }
             }
         });
         
