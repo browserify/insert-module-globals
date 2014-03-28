@@ -3,11 +3,10 @@ var through = require('through');
 
 var path = require('path');
 var fs = require('fs');
-var processModulePath = require.resolve('process/browser.js');
 
 var defaultVars = {
     process: function () {
-        return 'require(' + JSON.stringify(processModulePath) + ')';
+        return 'require("process")';
     },
     global: function () {
         return 'typeof self !== "undefined" ? self : '

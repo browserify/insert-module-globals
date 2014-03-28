@@ -8,7 +8,6 @@
   },
   "dependencies": {
     "lexical-scope": "~1.1.0",
-    "process": "~0.5.1",
     "through": "~2.3.4",
     "JSONStream": "~0.7.1",
     "concat-stream": "~1.4.1"
