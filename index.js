@@ -5,9 +5,23 @@ var path = require('path');
 var fs = require('fs');
 var processPath = require.resolve('process/browser.js');
 
+function commonPath(a, b) {
+    var i = 0;
+    while(a.charAt(i) == b.charAt(i)) {
+      ++i;
+    }
+    return a.substring(0, i);
+}
+
 var defaultVars = {
-    process: function () {
-        return 'require(' + JSON.stringify(processPath) + ')';
+    process: function (file, basedir) {
+        var common = commonPath(processPath, basedir);
+        // add trailing slash
+        if (common.substr(-1) !== '/') {
+          common += '/';
+        }
+        var modulePath = processPath.replace(common, '').replace('node_modules/', '');
+        return 'require(' + JSON.stringify(modulePath) + ')';
     },
     global: function () {
         return 'typeof self !== "undefined" ? self : '
