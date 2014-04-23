@@ -15,12 +15,16 @@ function commonPath(a, b) {
 
 var defaultVars = {
     process: function (file, basedir) {
-        var common = commonPath(processPath, basedir);
-        // add trailing slash
-        if (common.substr(-1) !== '/') {
-          common += '/';
+        var modulePath = processPath;
+        // workaround to not resolve streamed files
+        if (basedir !== '/') {
+            var common = commonPath(processPath, basedir);
+            // add trailing slash
+            if (common.substr(-1) !== '/') {
+              common += '/';
+            }
+            modulePath = processPath.replace(common, '').replace('node_modules/', '');
         }
-        var modulePath = processPath.replace(common, '').replace('node_modules/', '');
         return 'require(' + JSON.stringify(modulePath) + ')';
     },
     global: function () {
