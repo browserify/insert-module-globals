@@ -6,8 +6,9 @@ var fs = require('fs');
 var processPath = require.resolve('process/browser.js');
 
 var defaultVars = {
-    process: function () {
-        return 'require(' + JSON.stringify(processPath) + ')';
+    process: function (source) {
+        var relativePath = path.relative(path.dirname(source), processPath);
+        return 'require(' + JSON.stringify(relativePath) + ')';
     },
     global: function () {
         return 'typeof self !== "undefined" ? self : '
