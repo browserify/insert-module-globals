@@ -6,8 +6,9 @@ var fs = require('fs');
 var processPath = require.resolve('process/browser.js');
 
 var defaultVars = {
-    process: function () {
-        return 'require(' + JSON.stringify(processPath) + ')';
+    process: function (source) {
+        var relativePath = path.relative(path.dirname(source), processPath);
+        return 'require(' + JSON.stringify(relativePath) + ')';
     },
     global: function () {
         return 'typeof self !== "undefined" ? self : '
@@ -30,22 +31,22 @@ var defaultVars = {
 module.exports = function (file, opts) {
     if (/\.json$/i.test(file)) return through();
     if (!opts) opts = {};
-    
+
     var basedir = opts.basedir || '/';
     var vars = opts.vars || defaultVars
     var varNames = Object.keys(vars);
-    
+
     var quick = RegExp(varNames.map(function (name) {
         return '\\b' + name + '\\b';
     }).join('|'));
-    
+
     var resolved = {};
     var chunks = [];
-    
+
     return through(write, end);
-    
+
     function write (buf) { chunks.push(buf) }
-    
+
     function end () {
         var self = this;
         var source = Buffer.isBuffer(chunks[0])
@@ -53,13 +54,13 @@ module.exports = function (file, opts) {
             : chunks.join('')
         ;
         source = source.replace(/^#![^\n]*\n/, '\n');
-        
+
         if (opts.always !== true && !quick.test(source)) {
             this.queue(source);
             this.queue(null);
             return;
         }
-        
+
         try {
             var scope = opts.always
                 ? { globals: { implicit: varNames } }
@@ -74,9 +75,9 @@ module.exports = function (file, opts) {
             e.filename = file;
             return this.emit('error', e);
         }
-        
+
         var globals = {};
-        
+
         varNames.forEach(function (name) {
             if (scope.globals.implicit.indexOf(name) >= 0) {
                 var value = vars[name](file, basedir);
@@ -86,7 +87,7 @@ module.exports = function (file, opts) {
                 }
             }
         });
-        
+
         this.queue(closeOver(globals, source));
         this.queue(null);
     }
@@ -98,7 +99,7 @@ function closeOver (globals, src) {
     var keys = Object.keys(globals);
     if (keys.length === 0) return src;
     var values = keys.map(function (key) { return globals[key] });
-    
+
     if (keys.length <= 3) {
         return '(function (' + keys.join(',') + '){\n'
             + src + '\n}).call(this,' + values.join(',') + ')'
@@ -112,7 +113,7 @@ function closeOver (globals, src) {
         'arguments[3]','arguments[4]',
         'arguments[5]','arguments[6]'
     );
-    
+
     return '(function (' + names.join(',') + '){\n'
         + src + '\n}).call(this,' + values.join(',') + ')'
     ;
