@@ -1,5 +1,6 @@
 var parseScope = require('lexical-scope');
 var through = require('through');
+var merge = require('xtend');
 
 var path = require('path');
 var fs = require('fs');
@@ -32,7 +33,7 @@ module.exports = function (file, opts) {
     if (!opts) opts = {};
     
     var basedir = opts.basedir || '/';
-    var vars = opts.vars || defaultVars
+    var vars = merge(defaultVars, opts.vars);
     var varNames = Object.keys(vars);
     
     var quick = RegExp(varNames.map(function (name) {
