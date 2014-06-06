@@ -22,7 +22,7 @@ test('buffer inserts', function (t) {
     var files = [ __dirname + '/insert/buffer.js' ];
     var s = mdeps(files, {
         transform: [ inserter ],
-        modules: { buffer: require.resolve('native-buffer-browserify') }
+        modules: { buffer: require.resolve('buffer/') }
     });
     s.pipe(bpack({ raw: true })).pipe(concat(function (src) {
         var c = {
