@@ -11,7 +11,8 @@ var defaultVars = {
         return 'require(' + JSON.stringify(processPath) + ')';
     },
     global: function () {
-        return 'typeof self !== "undefined" ? self : '
+        return 'typeof global !== "undefined" ? global : '
+            + 'typeof self !== "undefined" ? self : '
             + 'typeof window !== "undefined" ? window : {}'
         ;
     },
