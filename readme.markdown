@@ -106,7 +106,7 @@ var vars = {
     },
     Buffer: function (row, basedir) {
         return {
-            id: "path/to/custom_buffer.js,
+            id: 'path/to/custom_buffer.js',
             source: customProcessContent,
             //suffix is optional
             //it's used to extract the value from the module.
