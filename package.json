@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "JSONStream": "~0.7.1",
+    "combine-source-map": "~0.3.0",
     "concat-stream": "~1.4.1",
     "lexical-scope": "~1.1.0",
     "process": "~0.6.0",
