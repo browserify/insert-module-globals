@@ -126,7 +126,8 @@ function closeOver (globals, src, file, opts) {
     if (!opts.debug) {
         return wrappedSource;
     }
-    var sourceFile = path.relative(opts.basedir, file);
+    var sourceFile = path.relative(opts.basedir, file)
+        .replace(/\\/g, '/');
     var sourceMap = combineSourceMap.create().addFile(
         { sourceFile: sourceFile, source: src},
         { line: 1 });
