@@ -20,6 +20,12 @@ var defaultVars = {
     Buffer: function () {
         return 'require("buffer").Buffer';
     },
+    setImmediate: function () {
+        return 'require("timers").setImmediate';
+    },
+    clearImmediate: function () {
+        return 'require("timers").clearImmediate';
+    },
     __filename: function (file, basedir) {
         var file = '/' + path.relative(basedir, file);
         return JSON.stringify(file);
