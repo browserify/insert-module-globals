@@ -18,8 +18,8 @@
   "devDependencies": {
     "tap": "~0.4.0",
     "browser-pack": "~0.10.2",
-    "module-deps": "~1.4.0",
-    "native-buffer-browserify": "~2.0.16"
+    "buffer": "^3.0.0",
+    "module-deps": "~1.4.0"
   },
   "scripts": {
     "test": "tap test/*.js"
