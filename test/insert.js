@@ -12,7 +12,11 @@ test('process.nextTick inserts', function (t) {
         .pipe(bpack({ raw: true }))
     ;
     s.pipe(concat(function (src) {
-        var c = { t: t, setTimeout: setTimeout };
+        var c = {
+            t: t,
+            setTimeout: setTimeout,
+            clearTimeout: clearTimeout
+        };
         vm.runInNewContext(src, c);
     }));
 });
@@ -28,6 +32,7 @@ test('buffer inserts', function (t) {
         var c = {
             t: t,
             setTimeout: setTimeout,
+            clearTimeout: clearTimeout,
             Uint8Array: Uint8Array,
             DataView: DataView
         };
