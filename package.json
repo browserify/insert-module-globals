@@ -7,9 +7,9 @@
     "insert-module-globals": "bin/cmd.js"
   },
   "dependencies": {
+    "JSONStream": "^1.0.3",
     "combine-source-map": "~0.3.0",
     "concat-stream": "~1.4.1",
-    "jsonstream": "^1.0.3",
     "lexical-scope": "~1.1.0",
     "process": "~0.11.0",
     "through": "~2.3.4",
