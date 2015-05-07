@@ -3,7 +3,7 @@
 var insert = require('../');
 var through = require('through');
 var concat = require('concat-stream');
-var JSONStream = require('JSONStream');
+var JSONStream = require('jsonstream');
 
 var basedir = process.argv[2] || process.cwd();
 
