@@ -55,7 +55,9 @@ module.exports = function (file, opts) {
             ? Buffer.concat(chunks).toString('utf8')
             : chunks.join('')
         ;
-        source = source.replace(/^#![^\n]*\n/, '\n');
+        source = source
+            .replace(/^\ufeff/, '')
+            .replace(/^#![^\n]*\n/, '\n');
         
         if (opts.always !== true && !quick.test(source)) {
             this.queue(source);
