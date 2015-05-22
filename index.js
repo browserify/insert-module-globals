@@ -3,7 +3,6 @@ var through = require('through2');
 var merge = require('xtend');
 
 var path = require('path');
-var fs = require('fs');
 var processPath = require.resolve('process/browser.js');
 var combineSourceMap = require('combine-source-map');
 
@@ -42,7 +41,6 @@ module.exports = function (file, opts) {
         return '\\b' + name + '\\b';
     }).join('|'));
     
-    var resolved = {};
     var chunks = [];
     
     return through(write, end);
