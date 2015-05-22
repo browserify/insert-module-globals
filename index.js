@@ -1,5 +1,5 @@
 var parseScope = require('lexical-scope');
-var through = require('through');
+var through = require('through2');
 var merge = require('xtend');
 
 var path = require('path');
@@ -47,7 +47,7 @@ module.exports = function (file, opts) {
     
     return through(write, end);
     
-    function write (buf) { chunks.push(buf) }
+    function write (chunk, enc, next) { chunks.push(chunk); next() }
     
     function end () {
         var self = this;
@@ -60,8 +60,8 @@ module.exports = function (file, opts) {
             .replace(/^#![^\n]*\n/, '\n');
         
         if (opts.always !== true && !quick.test(source)) {
-            this.queue(source);
-            this.queue(null);
+            this.push(source);
+            this.push(null);
             return;
         }
         
@@ -92,8 +92,8 @@ module.exports = function (file, opts) {
             }
         });
         
-        this.queue(closeOver(globals, source, file, opts));
-        this.queue(null);
+        this.push(closeOver(globals, source, file, opts));
+        this.push(null);
     }
 };
 
