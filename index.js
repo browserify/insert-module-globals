@@ -20,8 +20,8 @@ var defaultVars = {
         return 'require("buffer").Buffer';
     },
     __filename: function (file, basedir) {
-        var file = '/' + path.relative(basedir, file);
-        return JSON.stringify(file);
+        var filename = '/' + path.relative(basedir, file);
+        return JSON.stringify(filename);
     },
     __dirname: function (file, basedir) {
         var dir = path.dirname('/' + path.relative(basedir, file));
