@@ -7,14 +7,16 @@ var vm = require('vm');
 
 test('early return', function (t) {
     t.plan(4);
-    var files = [ __dirname + '/return/main.js' ];
-    var s = mdeps(files, { transform: [ inserter ] })
-        .pipe(bpack({ raw: true }))
-    ;
-    s.pipe(concat(function (src) {
-        var c = { t: t, setTimeout: setTimeout };
+    var s = mdeps({ transform: [ inserter ] });
+    s.pipe(bpack({ raw: true })).pipe(concat(function (src) {
+        var c = {
+            t: t,
+            setTimeout: setTimeout,
+            clearTimeout: clearTimeout
+        };
         vm.runInNewContext(src, c);
     }));
+    s.end(__dirname + '/return/main.js');
 });
 
 function inserter (file) {

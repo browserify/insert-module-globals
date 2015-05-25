@@ -7,32 +7,35 @@ var vm = require('vm');
 
 test('process.nextTick inserts', function (t) {
     t.plan(4);
-    var files = [ __dirname + '/insert/main.js' ];
-    var s = mdeps(files, { transform: [ inserter ] })
-        .pipe(bpack({ raw: true }))
-    ;
-    s.pipe(concat(function (src) {
-        var c = { t: t, setTimeout: setTimeout };
+    var s = mdeps({ transform: [ inserter ] });
+    s.pipe(bpack({ raw: true })).pipe(concat(function (src) {
+        var c = {
+            t: t,
+            setTimeout: setTimeout,
+            clearTimeout: clearTimeout
+        };
         vm.runInNewContext(src, c);
     }));
+    s.end(__dirname + '/insert/main.js');
 });
 
 test('buffer inserts', function (t) {
     t.plan(2);
-    var files = [ __dirname + '/insert/buffer.js' ];
-    var s = mdeps(files, {
+    var s = mdeps({
         transform: [ inserter ],
-        modules: { buffer: require.resolve('native-buffer-browserify') }
+        modules: { buffer: require.resolve('buffer/') }
     });
     s.pipe(bpack({ raw: true })).pipe(concat(function (src) {
         var c = {
             t: t,
             setTimeout: setTimeout,
+            clearTimeout: clearTimeout,
             Uint8Array: Uint8Array,
             DataView: DataView
         };
         vm.runInNewContext(src, c);
     }));
+    s.end(__dirname + '/insert/buffer.js');
 });
 
 function inserter (file) {
