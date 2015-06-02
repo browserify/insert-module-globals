@@ -11,8 +11,7 @@ var defaultVars = {
         return 'require(' + JSON.stringify(processPath) + ')';
     },
     global: function () {
-        // Check window first because `window.global` can exist in browsers.
-        return 'typeof window !== "undefined" ? window : '
+        return 'typeof window !== "undefined" && window.document && window.document.implementation ? window : '
             + 'typeof global !== "undefined" ? global : '
             + 'typeof self !== "undefined" ? self : {}'
         ;
