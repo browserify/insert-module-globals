@@ -11,9 +11,10 @@ var defaultVars = {
         return 'require(' + JSON.stringify(processPath) + ')';
     },
     global: function () {
-        return 'typeof global !== "undefined" ? global : '
-            + 'typeof self !== "undefined" ? self : '
-            + 'typeof window !== "undefined" ? window : {}'
+        // Check window first because `window.global` can exist in browsers.
+        return 'typeof window !== "undefined" ? window : '
+            + 'typeof global !== "undefined" ? global : '
+            + 'typeof self !== "undefined" ? self : {}'
         ;
     },
     Buffer: function () {
