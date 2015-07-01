@@ -1,6 +1,6 @@
 {
   "name": "insert-module-globals",
-  "version": "6.5.1",
+  "version": "6.6.0",
   "description": "insert implicit module globals into a module-deps stream",
   "main": "index.js",
   "bin": {
@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "JSONStream": "^1.0.3",
-    "combine-source-map": "~0.3.0",
+    "combine-source-map": "~0.6.1",
     "concat-stream": "~1.4.1",
     "lexical-scope": "~1.1.0",
     "process": "~0.11.0",
