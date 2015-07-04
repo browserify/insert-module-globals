@@ -19,6 +19,7 @@
     "tap": "^1.1.0",
     "browser-pack": "^5.0.0",
     "buffer": "^3.0.0",
+    "convert-source-map": "~1.1.0",
     "module-deps": "^3.7.11"
   },
   "scripts": {
