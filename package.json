@@ -13,18 +13,18 @@
     "is-buffer": "^1.1.0",
     "lexical-scope": "^1.2.0",
     "process": "~0.11.0",
+    "tape": "^4.2.0",
     "through2": "^1.0.0",
     "xtend": "^4.0.0"
   },
   "devDependencies": {
-    "tap": "^1.1.0",
     "browser-pack": "^5.0.0",
     "buffer": "^3.0.0",
     "convert-source-map": "~1.1.0",
     "module-deps": "^3.7.11"
   },
   "scripts": {
-    "test": "tap test/*.js"
+    "test": "tape test/*.js"
   },
   "repository": {
     "type": "git",

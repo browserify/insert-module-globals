@@ -1,4 +1,4 @@
-var test = require('tap').test;
+var test = require('tape');
 var mdeps = require('module-deps');
 var bpack = require('browser-pack');
 var insert = require('../');
@@ -16,13 +16,10 @@ test('isbuffer', function (t) {
         t.equal(c.require('main')('wow'), false, 'not a buffer (string)');
         t.equal(c.require('main')({}), false, 'not a buffer (object)');
     }));
-    //deps.write({ transform: inserter(), global: true });
-    deps.write({ transform: inserter() });
+    deps.write({ transform: inserter, global: true });
     deps.end({ id: 'main', file: __dirname + '/isbuffer/main.js' });
 });
 
-function inserter (opts) {
-    return function (file) {
-        return insert(file, opts);
-    };
+function inserter (file) {
+    return insert(file, { basedir: __dirname + '/isbuffer' });
 }
