@@ -87,24 +87,24 @@ module.exports = function (file, opts) {
         var globals = {};
         
         varNames.forEach(function (name) {
-            var match = false;
-            if (/\./.test(name)) {
-                var parts = name.split('.')
-                var prop = scope.globals.implicitProperties[parts[0]]
-                if (prop && prop.length === 1 && prop[0] === parts[1]) {
-                    match = true;
-                }
-            }
-            else if (scope.globals.implicit.indexOf(name) >= 0) {
-                match = true;
-            }
-            if (match) {
-                var value = vars[name](file, basedir);
-                if (value) {
-                    globals[name] = value;
-                    self.emit('global', name);
-                }
-            }
+            if (!/\./.test(name)) return;
+            var parts = name.split('.')
+            var prop = (scope.globals.implicitProperties || {})[parts[0]]
+            if (!prop || prop.length !== 1 || prop[0] !== parts[1]) return;
+            var value = vars[name](file, basedir);
+            if (!value) return;
+            globals[parts[0]] = '{'
+                + JSON.stringify(parts[1]) + ':' + value + '}';
+            self.emit('global', name);
+        });
+        varNames.forEach(function (name) {
+            if (/\./.test(name)) return;
+            if (globals[name]) return;
+            if (scope.globals.implicit.indexOf(name) < 0) return;
+            var value = vars[name](file, basedir);
+            if (!value) return;
+            globals[name] = value;
+            self.emit('global', name);
         });
         
         this.push(closeOver(globals, source, file, opts));
