@@ -1,6 +1,6 @@
 {
   "name": "insert-module-globals",
-  "version": "6.5.2",
+  "version": "6.6.0",
   "description": "insert implicit module globals into a module-deps stream",
   "main": "index.js",
   "bin": {
@@ -13,7 +13,6 @@
     "is-buffer": "^1.1.0",
     "lexical-scope": "^1.2.0",
     "process": "~0.11.0",
-    "tape": "^4.2.0",
     "through2": "^1.0.0",
     "xtend": "^4.0.0"
   },
@@ -21,7 +20,8 @@
     "browser-pack": "^5.0.0",
     "buffer": "^3.0.0",
     "convert-source-map": "~1.1.0",
-    "module-deps": "^3.7.11"
+    "module-deps": "^3.7.11",
+    "tape": "^4.2.0"
   },
   "scripts": {
     "test": "tape test/*.js"
