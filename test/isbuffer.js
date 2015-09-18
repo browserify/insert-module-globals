@@ -7,14 +7,22 @@ var vm = require('vm');
 
 test('isbuffer', function (t) {
     t.plan(3);
-    var deps = mdeps();
+    var deps = mdeps()
     var pack = bpack({ raw: true, hasExports: true });
     deps.pipe(pack).pipe(concat(function (src) {
-        var c = {};
+        var c = { global: {} };
         vm.runInNewContext(src, c);
         t.equal(c.require('main')(Buffer('wow')), true, 'is a buffer');
         t.equal(c.require('main')('wow'), false, 'not a buffer (string)');
         t.equal(c.require('main')({}), false, 'not a buffer (object)');
     }));
+    //deps.write({ transform: inserter(), global: true });
+    deps.write({ transform: inserter() });
     deps.end({ id: 'main', file: __dirname + '/isbuffer/main.js' });
 });
+
+function inserter (opts) {
+    return function (file) {
+        return insert(file, opts);
+    };
+}

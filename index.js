@@ -4,6 +4,7 @@ var merge = require('xtend');
 
 var path = require('path');
 var processPath = require.resolve('process/browser.js');
+var isbufferPath = require.resolve('is-buffer')
 var combineSourceMap = require('combine-source-map');
 
 var defaultVars = {
@@ -15,6 +16,9 @@ var defaultVars = {
             + 'typeof self !== "undefined" ? self : '
             + 'typeof window !== "undefined" ? window : {}'
         ;
+    },
+    'Buffer.isBuffer': function () {
+        return 'require(' + JSON.stringify(isbufferPath) + ')';
     },
     Buffer: function () {
         return 'require("buffer").Buffer';
@@ -83,7 +87,18 @@ module.exports = function (file, opts) {
         var globals = {};
         
         varNames.forEach(function (name) {
-            if (scope.globals.implicit.indexOf(name) >= 0) {
+            var match = false;
+            if (/\./.test(name)) {
+                var parts = name.split('.')
+                var prop = scope.globals.implicitProperties[parts[0]]
+                if (prop && prop.length === 1 && prop[0] === parts[1]) {
+                    match = true;
+                }
+            }
+            else if (scope.globals.implicit.indexOf(name) >= 0) {
+                match = true;
+            }
+            if (match) {
                 var value = vars[name](file, basedir);
                 if (value) {
                     globals[name] = value;
