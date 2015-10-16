@@ -6,7 +6,7 @@ var concat = require('concat-stream');
 var vm = require('vm');
 
 test('isbuffer', function (t) {
-    t.plan(4);
+    t.plan(5);
     var deps = mdeps()
     var pack = bpack({ raw: true, hasExports: true });
     deps.pipe(pack).pipe(concat(function (src) {
@@ -16,6 +16,7 @@ test('isbuffer', function (t) {
         t.equal(c.require('main')('wow'), false, 'not a buffer (string)');
         t.equal(c.require('main')({}), false, 'not a buffer (object)');
         t.notOk(/require("buffer")/.test(src), 'buffer not required in source')
+        t.notOk(/require\("\//.test(src), 'absolute path not required in source')
     }));
     deps.write({ transform: inserter, global: true });
     deps.end({ id: 'main', file: __dirname + '/isbuffer/main.js' });

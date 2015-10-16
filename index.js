@@ -8,8 +8,9 @@ var isbufferPath = require.resolve('is-buffer')
 var combineSourceMap = require('combine-source-map');
 
 var defaultVars = {
-    process: function () {
-        return 'require(' + JSON.stringify(processPath) + ')';
+    process: function (file) {
+        var relpath = path.relative(path.dirname(file), processPath);
+        return 'require(' + JSON.stringify(relpath) + ')';
     },
     global: function () {
         return 'typeof global !== "undefined" ? global : '
@@ -17,8 +18,9 @@ var defaultVars = {
             + 'typeof window !== "undefined" ? window : {}'
         ;
     },
-    'Buffer.isBuffer': function () {
-        return 'require(' + JSON.stringify(isbufferPath) + ')';
+    'Buffer.isBuffer': function (file) {
+        var relpath = path.relative(path.dirname(file), isbufferPath);
+        return 'require(' + JSON.stringify(relpath) + ')';
     },
     Buffer: function () {
         return 'require("buffer").Buffer';
