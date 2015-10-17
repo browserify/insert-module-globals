@@ -7,8 +7,8 @@ var processPath = require.resolve('process/browser.js');
 var isbufferPath = require.resolve('is-buffer')
 var combineSourceMap = require('combine-source-map');
 
-function getRelativePath(fullPath, fromPath) {
-  var relpath = path.relative(path.dirname(fromPath), fullPath);
+function getRelativeRequirePath(fullPath, fromPath) {
+  var relpath = path.posix.relative(path.dirname(fromPath), fullPath);
   if (relpath[0] !== "." && relpath[0] !== "/") {
     relpath = "./" + relpath;
   }
@@ -17,7 +17,7 @@ function getRelativePath(fullPath, fromPath) {
 
 var defaultVars = {
     process: function (file) {
-        var relpath = getRelativePath(processPath, file);
+        var relpath = getRelativeRequirePath(processPath, file);
         return 'require(' + JSON.stringify(relpath) + ')';
     },
     global: function () {
@@ -27,7 +27,7 @@ var defaultVars = {
         ;
     },
     'Buffer.isBuffer': function (file) {
-        var relpath = getRelativePath(isbufferPath, file);
+        var relpath = getRelativeRequirePath(isbufferPath, file);
         return 'require(' + JSON.stringify(relpath) + ')';
     },
     Buffer: function () {
