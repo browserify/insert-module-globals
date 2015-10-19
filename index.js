@@ -8,11 +8,11 @@ var isbufferPath = require.resolve('is-buffer')
 var combineSourceMap = require('combine-source-map');
 
 function getRelativeRequirePath(fullPath, fromPath) {
-  var relpath = path.posix.relative(path.dirname(fromPath), fullPath);
+  var relpath = path.relative(path.dirname(fromPath), fullPath);
   if (relpath[0] !== "." && relpath[0] !== "/") {
     relpath = "./" + relpath;
   }
-  return relpath;
+  return relpath.replace(/\\/g, '/');
 }
 
 var defaultVars = {
