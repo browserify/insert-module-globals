@@ -15,7 +15,11 @@ function getRelativeRequirePath(fullPath, fromPath) {
   if (path.dirname(relpath) === '.') {
     relpath = "./" + relpath;
   }
-  return relpath.replace(/\\/g, '/');
+  // On Windows: Convert path separators to what require() expects
+  if (path.sep === '\\') {
+    relpath = relpath.replace(/\\/g, '/');
+  }
+  return relpath;
 }
 
 var defaultVars = {
