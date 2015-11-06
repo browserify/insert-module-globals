@@ -3,6 +3,7 @@ var convert = require('convert-source-map');
 var insert = require('../');
 var mdeps = require('module-deps');
 var vm = require('vm');
+var path = require('path');
 
 test('sourcemap', function (t) {
     t.plan(6);
@@ -14,7 +15,7 @@ test('sourcemap', function (t) {
         var src = row.source;
         
         var sm = convert.fromSource(src).toObject();
-        t.deepEqual(sm.sources, [ 'test/sourcemap/main_es6.js' ]);
+        t.deepEqual(sm.sources, [ path.join('test', 'sourcemap', 'main_es6.js')]);
         t.deepEqual(sm.sourcesContent, [ 'console.log(`${__dirname}`, `${__filename}`);\n' ]);
         t.deepEqual(sm.mappings, ';AAAA,OAAO,CAAC,GAAG,MAAI,SAAS,OAAO,UAAU,CAAG,CAAC');
         
