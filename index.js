@@ -29,9 +29,7 @@ var defaultVars = {
     },
     global: function () {
         return 'typeof global !== "undefined" ? global : '
-            + 'typeof self !== "undefined" ? self : '
-            + 'typeof window !== "undefined" ? window : {}'
-        ;
+            + 'typeof self !== "undefined" ? self : {}';
     },
     'Buffer.isBuffer': function (file) {
         var relpath = getRelativeRequirePath(isbufferPath, file);
