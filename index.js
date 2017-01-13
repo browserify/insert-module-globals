@@ -41,11 +41,11 @@ var defaultVars = {
         return 'require("buffer").Buffer';
     },
     __filename: function (file, basedir) {
-        var filename = '/' + path.relative(basedir, file);
+        var filename = '/' + path.relative(basedir, file).replace(/\\/g, '/');
         return JSON.stringify(filename);
     },
     __dirname: function (file, basedir) {
-        var dir = path.dirname('/' + path.relative(basedir, file));
+        var dir = path.dirname('/' + path.relative(basedir, file).replace(/\\/g, '/'));
         return JSON.stringify(dir);
     }
 };
