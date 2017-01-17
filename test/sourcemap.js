@@ -23,8 +23,8 @@ test('sourcemap', function (t) {
         var c = {
             console: {
                 log: function(dirname, filename) {
-                    t.equal(dirname, '/');
-                    t.equal(filename, '/main.js');
+                    t.equal(dirname, '.');
+                    t.equal(filename, './main.js');
                 }
             },
         };
