@@ -19,8 +19,8 @@ test('unprefix - remove shebang and bom', function (t) {
         var c = {};
         vm.runInNewContext('require=' + src, c);
         var x = c.require(file);
-        t.equal(x.filename, '/hello.js');
-        t.equal(x.dirname, '/');
+        t.equal(x.filename, './hello.js');
+        t.equal(x.dirname, '.');
         t.notOk(/\ufeff/.test(src.toString()));
     }));
     

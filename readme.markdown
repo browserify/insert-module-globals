@@ -25,24 +25,24 @@ mdeps(files, { transform: inserter })
 
 ```
 $ node example/insert.js | node
-in main.js: {"__filename":"/main.js","__dirname":"/"}
-in foo/index.js: {"__filename":"/foo/index.js","__dirname":"/foo"}
+in main.js: {"__filename":"./main.js","__dirname":"."}
+in foo/index.js: {"__filename":"./foo/index.js","__dirname":"./foo"}
 ```
 
 or use the command-line scripts:
 
 ```
 $ module-deps main.js | insert-module-globals | browser-pack | node
-in main.js: {"__filename":"/main.js","__dirname":"/"}
-in foo/index.js: {"__filename":"/foo/index.js","__dirname":"/foo"}
+in main.js: {"__filename":"./main.js","__dirname":"."}
+in foo/index.js: {"__filename":"./foo/index.js","__dirname":"./foo"}
 ```
 
 or use insert-module-globals as a transform:
 
 ```
 $ module-deps main.js --transform insert-module-globals | browser-pack | node
-in main.js: {"__filename":"/main.js","__dirname":"/"}
-in foo/index.js: {"__filename":"/foo/index.js","__dirname":"/foo"}
+in main.js: {"__filename":"./main.js","__dirname":"."}
+in foo/index.js: {"__filename":"./foo/index.js","__dirname":"./foo"}
 ```
 
 # methods

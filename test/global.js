@@ -50,8 +50,8 @@ test('__filename and __dirname', function (t) {
         var c = {};
         vm.runInNewContext('require=' + src, c);
         var x = c.require(file);
-        t.equal(x.filename, '/filename.js');
-        t.equal(x.dirname, '/');
+        t.equal(x.filename, './filename.js');
+        t.equal(x.dirname, '.');
     }));
     
     deps.write({ transform: inserter, global: true });
