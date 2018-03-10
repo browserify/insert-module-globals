@@ -1,4 +1,4 @@
-var parseScope = require('lexical-scope');
+var undeclaredIdentifiers = require('undeclared-identifiers');
 var through = require('through2');
 var merge = require('xtend');
 
@@ -104,9 +104,9 @@ module.exports = function (file, opts) {
         }
         
         try {
-            var scope = opts.always
-                ? { globals: { implicit: varNames } }
-                : parseScope('(function(){\n' + source + '\n})()')
+            var undeclared = opts.always
+                ? { identifiers: varNames, properties: [] }
+                : undeclaredIdentifiers(source)
             ;
         }
         catch (err) {
@@ -123,8 +123,8 @@ module.exports = function (file, opts) {
         varNames.forEach(function (name) {
             if (!/\./.test(name)) return;
             var parts = name.split('.')
-            var prop = (scope.globals.implicitProperties || {})[parts[0]]
-            if (!prop || prop.length !== 1 || prop[0] !== parts[1]) return;
+            var prop = undeclared.properties.indexOf(name)
+            if (prop === -1 || countprops(undeclared.properties, parts[0]) > 1) return;
             var value = vars[name](file, basedir);
             if (!value) return;
             globals[parts[0]] = '{'
@@ -134,7 +134,7 @@ module.exports = function (file, opts) {
         varNames.forEach(function (name) {
             if (/\./.test(name)) return;
             if (globals[name]) return;
-            if (scope.globals.implicit.indexOf(name) < 0) return;
+            if (undeclared.identifiers.indexOf(name) < 0) return;
             var value = vars[name](file, basedir);
             if (!value) return;
             globals[name] = value;
@@ -184,4 +184,10 @@ function closeOver (globals, src, file, opts) {
         { line: 1 });
     return combineSourceMap.removeComments(wrappedSource) + "\n"
         + sourceMap.comment();
+}
+
+function countprops (props, name) {
+    return props.filter(function (prop) {
+        return prop.slice(0, name.length + 1) === name + '.';
+    }).length;
 }

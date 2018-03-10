@@ -11,15 +11,15 @@
     "combine-source-map": "^0.8.0",
     "concat-stream": "^1.6.1",
     "is-buffer": "^1.1.0",
-    "lexical-scope": "^1.2.0",
     "path-is-absolute": "^1.0.1",
     "process": "~0.11.0",
     "through2": "^2.0.0",
+    "undeclared-identifiers": "^1.0.0",
     "xtend": "^4.0.0"
   },
   "devDependencies": {
     "browser-pack": "^6.0.0",
-    "buffer": "^3.0.0",
+    "buffer": "^4.9.1",
     "convert-source-map": "~1.1.0",
     "module-deps": "^4.0.2",
     "nanobench": "^2.1.1",
