@@ -2,6 +2,7 @@ var test = require('tape');
 var vm = require('vm');
 var concat = require('concat-stream');
 
+var path = require('path');
 var insert = require('../');
 var bpack = require('browser-pack');
 var mdeps = require('module-deps');
@@ -40,7 +41,7 @@ test('insert globals', function (t) {
 test('__filename and __dirname', function (t) {
     t.plan(2);
     
-    var file = __dirname + '/global/filename.js';
+    var file = path.join(__dirname, 'global', 'filename.js');
     var deps = mdeps()
     var pack = bpack({ raw: true });
     

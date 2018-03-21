@@ -41,11 +41,21 @@ var defaultVars = {
         return 'require("buffer").Buffer';
     },
     __filename: function (file, basedir) {
-        var filename = '/' + path.relative(basedir, file);
+        var relpath = path.relative(basedir, file);
+        // standardize path separators, use slash in Windows too
+        if ( path.sep === '\\' ) {
+          relpath = relpath.replace(/\\/g, '/');
+        }
+        var filename = '/' + relpath;
         return JSON.stringify(filename);
     },
     __dirname: function (file, basedir) {
-        var dir = path.dirname('/' + path.relative(basedir, file));
+        var relpath = path.relative(basedir, file);
+        // standardize path separators, use slash in Windows too
+        if ( path.sep === '\\' ) {
+          relpath = relpath.replace(/\\/g, '/');
+        }
+        var dir = path.dirname('/' + relpath );
         return JSON.stringify(dir);
     }
 };
