@@ -4,7 +4,7 @@ insert implicit module globals
 (`__filename`, `__dirname`, `process`, `global`, and `Buffer`)
 as a browserify-style transform
 
-[![build status](https://secure.travis-ci.org/substack/insert-module-globals.png)](http://travis-ci.org/substack/insert-module-globals)
+[![build status](https://secure.travis-ci.org/browserify/insert-module-globals.png)](http://travis-ci.org/browserify/insert-module-globals)
 
 # example
 

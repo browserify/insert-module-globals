@@ -28,9 +28,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/substack/insert-module-globals.git"
+    "url": "git://github.com/browserify/insert-module-globals.git"
   },
-  "homepage": "https://github.com/substack/insert-module-globals",
+  "homepage": "https://github.com/browserify/insert-module-globals",
   "keywords": [
     "__filename",
     "__dirname",
