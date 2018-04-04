@@ -12,7 +12,7 @@ function getRelativeRequirePath(fullPath, fromPath) {
   // If fullPath is in the same directory or a subdirectory of fromPath,
   // relpath will result in something like "index.js", "src/abc.js".
   // require() needs "./" prepended to these paths.
-  if (!/^\./.test(relpath)) {
+  if (!/^\./.test(relpath) && !path.isAbsolute(relpath)) {
     relpath = "./" + relpath;
   }
   // On Windows: Convert path separators to what require() expects
