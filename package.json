@@ -22,7 +22,8 @@
     "buffer": "^3.0.0",
     "convert-source-map": "~1.1.0",
     "module-deps": "^4.0.2",
-    "tape": "^4.2.0"
+    "tape": "^4.2.0",
+    "timers-browserify": "^1.4.2"
   },
   "scripts": {
     "test": "tape test/*.js"
