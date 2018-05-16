@@ -41,6 +41,12 @@ var defaultVars = {
     Buffer: function () {
         return 'require("buffer").Buffer';
     },
+    setImmediate: function () {
+        return 'require("timers").setImmediate';
+    },
+    clearImmediate: function () {
+        return 'require("timers").clearImmediate';
+    },
     __filename: function (file, basedir) {
         var relpath = path.relative(basedir, file);
         // standardize path separators, use slash in Windows too
