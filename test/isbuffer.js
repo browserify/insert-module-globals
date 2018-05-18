@@ -25,7 +25,7 @@ test('isbuffer', function (t) {
     deps.end({ id: 'main', file: __dirname + '/isbuffer/main.js' });
 });
 
-test('isbuffer (and buffer)', function (t) {
+test('isbuffer (and Buffer.from)', function (t) {
     t.plan(5);
     var deps = mdeps()
     var pack = bpack({ raw: true, hasExports: true });
@@ -40,6 +40,23 @@ test('isbuffer (and buffer)', function (t) {
     }));
     deps.write({ transform: inserter, global: true });
     deps.end({ id: 'main', file: __dirname + '/isbuffer/both.js' });
+});
+
+test('isbuffer (and new Buffer)', function (t) {
+    t.plan(5);
+    var deps = mdeps()
+    var pack = bpack({ raw: true, hasExports: true });
+    deps.pipe(pack).pipe(concat(function (src) {
+        var c = { global: {} };
+        vm.runInNewContext(src, c);
+        t.equal(c.require('main')(c.require('main').a()), true, 'is a buffer');
+        t.equal(c.require('main')('wow'), false, 'is not a buffer');
+        t.equal(isBuffer(c.require('main').a()), true, 'is a buffer');
+        t.ok(/require\("buffer"\)/.test(src), 'buffer required in source')
+        t.equal(c.require('main').a().toString('hex'), 'abcd', 'is a buffer');
+    }));
+    deps.write({ transform: inserter, global: true });
+    deps.end({ id: 'main', file: __dirname + '/isbuffer/new.js' });
 });
 
 function inserter (file) {
