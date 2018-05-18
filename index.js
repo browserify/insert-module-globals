@@ -106,7 +106,7 @@ module.exports = function (file, opts) {
         try {
             var undeclared = opts.always
                 ? { identifiers: varNames, properties: [] }
-                : undeclaredIdentifiers(source)
+                : undeclaredIdentifiers(source, { wildcard: true })
             ;
         }
         catch (err) {

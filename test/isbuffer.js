@@ -53,7 +53,7 @@ test('isbuffer (and new Buffer)', function (t) {
         t.equal(c.require('main')('wow'), false, 'is not a buffer');
         t.equal(isBuffer(c.require('main').a()), true, 'is a buffer');
         t.ok(/require\("buffer"\)/.test(src), 'buffer required in source')
-        t.equal(c.require('main').a().toString('hex'), 'abcd', 'is a buffer');
+        t.equal(c.require('main').a().toString('utf8'), 'abcd', 'is a buffer');
     }));
     deps.write({ transform: inserter, global: true });
     deps.end({ id: 'main', file: __dirname + '/isbuffer/new.js' });
