@@ -22,6 +22,7 @@
     "buffer": "^3.0.0",
     "convert-source-map": "~1.1.0",
     "module-deps": "^4.0.2",
+    "nanobench": "^2.1.1",
     "tape": "^4.2.0",
     "timers-browserify": "^1.4.2"
   },
