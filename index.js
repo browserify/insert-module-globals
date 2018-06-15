@@ -1,6 +1,7 @@
 var undeclaredIdentifiers = require('undeclared-identifiers');
 var through = require('through2');
 var merge = require('xtend');
+var parse = require('acorn-node').parse;
 
 var path = require('path');
 var isAbsolute = path.isAbsolute || require('path-is-absolute');
@@ -106,7 +107,7 @@ module.exports = function (file, opts) {
         try {
             var undeclared = opts.always
                 ? { identifiers: varNames, properties: [] }
-                : undeclaredIdentifiers(source, { wildcard: true })
+                : undeclaredIdentifiers(parse(source), { wildcard: true })
             ;
         }
         catch (err) {

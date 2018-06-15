@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "JSONStream": "^1.0.3",
+    "acorn-node": "^1.5.2",
     "combine-source-map": "^0.8.0",
     "concat-stream": "^1.6.1",
     "is-buffer": "^1.1.0",
