@@ -30,9 +30,9 @@ var defaultVars = {
         return 'require(' + JSON.stringify(relpath) + ')';
     },
     global: function () {
-        return 'typeof global !== "undefined" ? global : '
-            + 'typeof self !== "undefined" ? self : '
-            + 'typeof window !== "undefined" ? window : {}'
+        return 'typeof window !== "undefined" && window.document && window.document.implementation ? window : '
+            + 'typeof global !== "undefined" ? global : '
+            + 'typeof self !== "undefined" ? self : {}'
         ;
     },
     'Buffer.isBuffer': function (file) {
