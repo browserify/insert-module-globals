@@ -1,13 +1,16 @@
-var undeclaredIdentifiers = require('undeclared-identifiers');
-var through = require('through2');
-var merge = require('xtend');
-var parse = require('acorn-node').parse;
+const undeclaredIdentifiers = require('undeclared-identifiers');
+const through = require('through2');
+const merge = require('xtend');
+const path = require('path');
+const isAbsolute = path.isAbsolute || require('path-is-absolute');
+const processPath = require.resolve('process/browser.js');
+const isbufferPath = require.resolve('is-buffer')
+const combineSourceMap = require('combine-source-map');
+const acorn = require('acorn');
+const privateMethods = require('acorn-private-methods')
+const privateFields = require('acorn-class-fields')
 
-var path = require('path');
-var isAbsolute = path.isAbsolute || require('path-is-absolute');
-var processPath = require.resolve('process/browser.js');
-var isbufferPath = require.resolve('is-buffer')
-var combineSourceMap = require('combine-source-map');
+const parser = acorn.Parser.extend(privateFields).extend(privateMethods)
 
 function getRelativeRequirePath(fullPath, fromPath) {
   var relpath = path.relative(path.dirname(fromPath), fullPath);
@@ -71,23 +74,23 @@ var defaultVars = {
 module.exports = function (file, opts) {
     if (/\.json$/i.test(file)) return through();
     if (!opts) opts = {};
-    
+
     var basedir = opts.basedir || '/';
     var vars = merge(defaultVars, opts.vars);
     var varNames = Object.keys(vars).filter(function(name) {
         return typeof vars[name] === 'function';
     });
-    
+
     var quick = RegExp(varNames.map(function (name) {
         return '\\b' + name + '\\b';
     }).join('|'));
-    
+
     var chunks = [];
-    
+
     return through(write, end);
-    
+
     function write (chunk, enc, next) { chunks.push(chunk); next() }
-    
+
     function end () {
         var self = this;
         var source = Buffer.isBuffer(chunks[0])
@@ -97,17 +100,17 @@ module.exports = function (file, opts) {
         source = source
             .replace(/^\ufeff/, '')
             .replace(/^#![^\n]*\n/, '\n');
-        
+
         if (opts.always !== true && !quick.test(source)) {
             this.push(source);
             this.push(null);
             return;
         }
-        
+
         try {
             var undeclared = opts.always
                 ? { identifiers: varNames, properties: [] }
-                : undeclaredIdentifiers(parse(source), { wildcard: true })
+                : undeclaredIdentifiers(parser.parse(source, {ecmaVersion: 2022}), { wildcard: true })
             ;
         }
         catch (err) {
@@ -118,9 +121,9 @@ module.exports = function (file, opts) {
             e.filename = file;
             return this.emit('error', e);
         }
-        
+
         var globals = {};
-        
+
         varNames.forEach(function (name) {
             if (!/\./.test(name)) return;
             var parts = name.split('.')
@@ -141,7 +144,7 @@ module.exports = function (file, opts) {
             globals[name] = value;
             self.emit('global', name);
         });
-        
+
         this.push(closeOver(globals, source, file, opts));
         this.push(null);
     }
@@ -153,7 +156,7 @@ function closeOver (globals, src, file, opts) {
     var keys = Object.keys(globals);
     if (keys.length === 0) return src;
     var values = keys.map(function (key) { return globals[key] });
-    
+
     // we double-wrap the source in IIFEs to prevent code like
     //     (function(Buffer){ const Buffer = null }())
     // which causes a parse error.

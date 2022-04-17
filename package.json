@@ -7,11 +7,13 @@
     "insert-module-globals": "bin/cmd.js"
   },
   "dependencies": {
-    "JSONStream": "^1.0.3",
-    "acorn-node": "^1.5.2",
+    "acorn": "^8.7.0",
+    "acorn-class-fields": "^1.0.0",
+    "acorn-private-methods": "^1.0.0",
     "combine-source-map": "^0.8.0",
     "concat-stream": "^1.6.1",
     "is-buffer": "^1.1.0",
+    "JSONStream": "^1.0.3",
     "path-is-absolute": "^1.0.1",
     "process": "~0.11.0",
     "through2": "^2.0.0",
