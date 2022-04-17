@@ -2,8 +2,7 @@ version: "{build}"
 
 environment:
   matrix:
-    - nodejs_version: "" # lastest
-    - nodejs_version: "0.16"
+    - nodejs_version: "" # latest
 
 install:
   - ps: Install-Product node $env:nodejs_version
